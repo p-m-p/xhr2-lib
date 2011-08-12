@@ -9,20 +9,15 @@ var XHR2Ajax = (function () {
 	return methods = {
 
 			get: function (url, data, cb) {
-				var qs = "";
-				if (typeof data === "object") {
-					if (!~url.search(/\?/)) {
-						qs = "?";
-					} else {
-						qs = "&";
-					}
-					for (var key in data) {
-						qs += key + "=" + data[key] + "&";
-					}
-					qs = qs.substr(0, qs.length - 1);
-				}
+				var qs = methods.serializeQS(url, data);
 				methods._request(url + qs, undefined, undefined, cb);
 			}
+
+		,	getJSON: function (url, data, cb) {
+				var qs = methods.serializeQS(url, data)
+					,	opts = methods._mix({dType: "json"});
+				methods._request(url + qs, opts, undefined, cb);
+		}
 
 		,	post: function (url, opts, data, cb) {
 				methods._request(url, opts, (data || {}), cb);
@@ -41,6 +36,9 @@ var XHR2Ajax = (function () {
 				}
 				client.open(params.type, url);
 				methods._addHeaders(client, params.dType);
+				client.xhr2data = {
+						dType: params.dType
+				};
 				client.callback = cb;
 				client.addEventListener(
 						"readystatechange"
@@ -53,7 +51,7 @@ var XHR2Ajax = (function () {
 		,	_mix: function () {
 				var ret = {}
 					,	i = 0
-					, key;
+					,	key;
 				for (key in defaults) {
 					ret[key] = defaults[key];
 				}
@@ -68,9 +66,24 @@ var XHR2Ajax = (function () {
 			}
 
 		,	_stateChange: function (ev) {
-				if (this.readyState === 4) {
-					if (this.status === 200) {
-						this.callback.call(undefined, this.responseText);
+				var clientData = this.xhr2data;
+				if (clientData) {
+					if (this.readyState === 4) {
+						switch (this.status) {
+							case 200:
+								if (clientData.dType === "json") {
+									try {
+										resBody = JSON.parse(this.responseText);
+									} catch (ex) {
+										// invalid json data
+										// todo: error handler
+									}
+								} else {
+									resBody = this.responseText;
+								}
+						}
+						console.log(resBody);
+						this.callback.call(undefined, resBody);
 					}
 				}
 			}
@@ -91,6 +104,22 @@ var XHR2Ajax = (function () {
 				}
 				client.setRequestHeader("Accept", mime);
 			}
+
+		,	serializeQS: function (url, data) {
+				var qs = "";
+				if (typeof data === "object") {
+					if (!~url.search(/\?/)) {
+						qs = "?";
+					} else {
+						qs = "&";
+					}
+					for (var key in data) {
+						qs += key + "=" + data[key] + "&";
+					}
+					qs = qs.substr(0, qs.length - 1);
+				}
+				return qs;
+		}
 
 	};
 
