@@ -19,6 +19,22 @@ var XHR2Ajax = (function () {
 				methods._request(url + qs, opts, undefined, cb);
 		}
 
+		,	serializeQS: function (url, data) {
+				var qs = "";
+				if (typeof data === "object") {
+					if (!~url.search(/\?/)) {
+						qs = "?";
+					} else {
+						qs = "&";
+					}
+					for (var key in data) {
+						qs += key + "=" + data[key] + "&";
+					}
+					qs = qs.substr(0, qs.length - 1);
+				}
+				return qs;
+			}
+
 		,	post: function (url, opts, data, cb) {
 				methods._request(url, opts, (data || {}), cb);
 			}
@@ -45,6 +61,11 @@ var XHR2Ajax = (function () {
 					,	methods._stateChange
 					,	false
 				);
+				client.addEventListener(
+						"error"
+					,	methods._handleRequestError
+					,	false
+				);
 				client.send(data);
 			}
 
@@ -69,21 +90,19 @@ var XHR2Ajax = (function () {
 				var clientData = this.xhr2data;
 				if (clientData) {
 					if (this.readyState === 4) {
-						switch (this.status) {
-							case 200:
-								if (clientData.dType === "json") {
-									try {
-										resBody = JSON.parse(this.responseText);
-									} catch (ex) {
-										// invalid json data
-										// todo: error handler
-									}
-								} else {
-									resBody = this.responseText;
-								}
+						if (clientData.dType === "json") {
+							try {
+								resBody = JSON.parse(this.responseText);
+							} catch (ex) {
+								// invalid json data?
+								resBody = this.responseText;
+							}
+						} else {
+							resBody = this.responseText;
 						}
-						console.log(resBody);
-						this.callback.call(undefined, resBody);
+						if (this.callback) {
+							this.callback.call(undefined, resBody);
+						}
 					}
 				}
 			}
@@ -105,21 +124,9 @@ var XHR2Ajax = (function () {
 				client.setRequestHeader("Accept", mime);
 			}
 
-		,	serializeQS: function (url, data) {
-				var qs = "";
-				if (typeof data === "object") {
-					if (!~url.search(/\?/)) {
-						qs = "?";
-					} else {
-						qs = "&";
-					}
-					for (var key in data) {
-						qs += key + "=" + data[key] + "&";
-					}
-					qs = qs.substr(0, qs.length - 1);
-				}
-				return qs;
-		}
+		,	_handleRequestError: function (xhr) {
+				console.log(xhr);
+			}
 
 	};
 
