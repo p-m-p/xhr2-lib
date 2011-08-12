@@ -40,13 +40,7 @@ var XHR2Ajax = (function () {
 					}
 				}
 				client.open(params.type, url);
-				client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-				client.setRequestHeader("Cache-Control", "No-Cache");
-				if (params.dType.toLowerCase() === "json") {
-					client.setRequestHeader("Accept", "application/json");
-				} else {
-					client.setRequestHeader("Accept", "text/html");
-				}
+				methods._addHeaders(client, params.dType);
 				client.callback = cb;
 				client.addEventListener(
 						"readystatechange"
@@ -83,6 +77,19 @@ var XHR2Ajax = (function () {
 
 		,	_progress: function (ev) {
 				console.log(ev);
+			}
+
+		,	_addHeaders: function (client, requestType) {
+				var mime = "*/*, text/html"
+					,	requestType = requestType.toLowerCase();
+				client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+				client.setRequestHeader("Cache-Control", "No-Cache");
+				if (requestType === "json") {
+					mime += ", application/json";
+				} else if (requestType === "xml") {
+					mime += ", text/xml";
+				}
+				client.setRequestHeader("Accept", mime);
 			}
 
 	};
