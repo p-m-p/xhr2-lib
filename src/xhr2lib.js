@@ -93,6 +93,7 @@
       @param {String} url destination URL
       @param {Object} [data] Post data
       @param {Function} [cb] success call back function
+      @param {String} [dataType] type of response data
       
     */
     exp.post = function () {
@@ -106,16 +107,18 @@
   
     /**
     
-      @method sendForm
-      @description Posts a form or creates a get request based on the forms
-        attributes
+      @method postForm
+      @description Posts a form. The action attribute of the form is used to 
+        determine the destination. If no action attribute is present the 
+        current location is used.
       
       @public
       @param {HTMLFormElement} form A HTML Form element
       @param {Function} [cb] success call back function
+      @param {String} [dataType] type of response data
      
      */
-     exp.sendForm = function () {
+     exp.postForm = function () {
        
       var fd
         , options
@@ -127,7 +130,11 @@
         fd = new FormData(f);
         options = mix(
             createOptions(args)
-          , { url: f.action || w.location.href, type: "post", data: fd }
+          , { 
+                url: f.action || w.location.href
+              , type: "post"
+              , data: fd
+            }
         );
         
         exp.ajax(options);
@@ -151,18 +158,14 @@
       @param {Function} [cb] Success call back function
      
     */
-    exp.sendFile = function (url, file, cb, progress) {
+    exp.postFile = function () {
+      
+      var opts = createOptions(arguments)
     	
-    	exp.ajax({
-    	   url: url + "?isFile"
-    	 , data: file
-    	 , success: cb
-    	 , progress: progress
-    	 , type: "post"
-    	 , headers: {
-      	   "X-File-Name": file.name
-      	 }
-    	});
+    	exp.ajax(mix(
+    	    opts
+    	  , { type: "post", headers: {"X-File-Name": opts.data.name} }
+    	));
     	
     };
     
@@ -277,7 +280,8 @@
       
       var i = 0
         , opts = { url: args[0] }
-        , params = Array.prototype.slice.call(args, 1);
+        , params = Array.prototype.slice.call(args, 1)
+        , cbFound = false;
         
       for (; i < params.length; ++i) {
         
@@ -287,8 +291,14 @@
             opts.dataType = params[i];
             break;
             
-          case "function": // success callback function
-            opts.success = params[i];
+          case "function": // success/progress callback functions
+            if (cbFound) {
+              opts.progress = params[i];
+            }
+            else {
+              opts.success = params[i];
+              cbFound = true;
+            }
             break;
             
           case "object": // data object
@@ -351,7 +361,7 @@
         , xhr = ev.target
         , clientData = xhr.xhr2data || {};
         
-      if (xhr.readyState === 4) {
+      if (xhr.readyState === xhr.DONE) {
         
         if (xhr.status === 200) {
           
@@ -427,7 +437,7 @@
           break;
           
         case "xml":
-          accept += "text/xml, ";
+          accept += "text/xml, application/xml, ";
           break;
           
         case "text":
@@ -435,7 +445,7 @@
         
       }
       
-      accept += "*/*; q=0.1";
+      accept += "*/*;q=0.1";
       
       client.setRequestHeader("Accept", accept);
       client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
