@@ -3,9 +3,13 @@
   "use strict";
   
   /**
+    
     @author <a href="http://www.profilepicture.co.uk">Phil Parsons</a>
-    @namespace xhr2
+    
+    @namespace $xhr
+    
     @class
+    
   */
   w.$xhr = (function () {
   
@@ -13,15 +17,19 @@
         
     
     // :ajax api
+    
   
     /**
-      Convenience function for simple HTML get
-      requests
+      
+      @method get
+      @description Convenience function for simple HTML get
+        requests
   
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
-      @param {Function} [cb] success callback function 
+      @param {Function} [cb] success callback function
+      
     */
     exp.get = function () {
       
@@ -34,13 +42,16 @@
     
   
     /**
-      Convenience function for simple JSON get
-      requests
+      
+      @method getJSON
+      @description Convenience function for simple JSON get
+        requests
   
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
-      @param {Function} [cb] success callback function 
+      @param {Function} [cb] success callback function
+      
     */
     exp.getJSON = function () {
       
@@ -53,13 +64,16 @@
     
   
     /**
-      Convenience function for simple XML get
-      requests
+      
+      @method getXML
+      @description Convenience function for simple XML get
+        requests
   
       @public
       @param {String} url destination URL
-      @param {Object} [data] request params
-      @param {Function} [cb] success callback function 
+      @param {Object} [data] request parameters
+      @param {Function} [cb] success call back function
+      
     */
     exp.getXML = function () {
       
@@ -71,6 +85,17 @@
     };
        
   
+    /**
+    
+      @method post;
+      @description Convenience method for simple posts
+    
+      @public
+      @param {String} url destination URL
+      @param {Object} [data] Post data
+      @param {Function} [cb] success call back function
+      
+    */
     exp.post = function () {
       
       exp.ajax(
@@ -81,8 +106,15 @@
     
   
     /**
-     * Creates formdata object and sends to the 
-     * request method as data
+    
+      @method sendForm
+      @description Posts a form or creates a get request based on the forms
+        attributes
+      
+      @public
+      @param {HTMLFormElement} form A HTML Form element
+      @param {Function} [cb] success call back function
+     
      */
      exp.sendForm = function () {
        
@@ -103,19 +135,28 @@
         
       } 
       
-      else throw new Error("Expected form as first argument");
+      else throw new Error("HTMLFormElement expected");
       
     };
     
+    
     /**
-       
+    
+      @method sendFile
+      @description Posts a file. The file's name can be retrieved on the server
+        side from the X-File-Name HTTP Header.
+      
+      @public
+      @param {String} url The URL to which the file should be sent
+      @param {File} file A File object
+      @param {Function} [cb] Success call back function
      
     */
-    exp.sendFile = function (url, f, success) {
+    exp.sendFile = function (url, file, cb) {
     	
     	exp.ajax({
     	   url: url + "?isFile"
-    	 , data: f
+    	 , data: file
     	 , success: success
     	 , type: "post"
     	 , headers: {
@@ -127,10 +168,13 @@
     
     
     /**
-      main ajax method
+      
+      @method ajax
+      @description Core Ajax method used in all ajax methods;
   
-      @private
-      @param {Object} opts The ajax HTTP request options
+      @public
+      @param {Object} opts The options for the ajax request
+      
     */
     exp.ajax = function (opts) {
       
@@ -177,16 +221,21 @@
     };
     
     
+    
     // :Utils api
     
+    
     /**
-      Serialises a data object into a query string
+      
+      @method serializeQS
+      @description Serialises a data object to a query string
   
       @public
       @param {String} url the destination url
       @param {Object} data the request data
   
       @returns {String} data object serialised
+      
     */
     exp.serializeQS = function (url, data) {
       
@@ -216,7 +265,9 @@
     };
     
     
+    
     // :private    
+    
     
     var _createOptions = function (args) {
       
@@ -323,6 +374,7 @@
       
     };
   
+    
     /*
       Fires upload progress event handler with percentage
       of upload complete and total
@@ -337,6 +389,7 @@
       
     };
   
+    
     /**
       Add request headers including accept mime
   
@@ -372,6 +425,7 @@
       
     };
   
+    
     /**
       Default error handler for requests
       
@@ -385,8 +439,10 @@
       
     };
   
+    
     return exp; // export api
+    
   
   })();
 
- })(window);
+})(window);
