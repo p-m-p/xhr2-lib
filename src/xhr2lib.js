@@ -13,7 +13,8 @@
   */
   w.$xhr = (function () {
   
-    var exp = {}; // module api
+  
+    var exp = Object.create(null); // module api
         
     
     // :ajax api
@@ -397,28 +398,40 @@
     */
     var  _headers = function (client, resType, headers) {
       
-      var mime = ""
-        , resType = resType.toLowerCase()
-        , header;
+      var accept = "", header;
       
-      if (resType === "json") {
-        mime += "application/json, ";
-      } 
-      else if (resType === "xml") {
-        mime += "text/xml, ";
+      switch ((resType || "").toLowerCase()) {
+        
+        case "json":
+          accept += "application/json, text/javascript, ";
+          break;
+          
+        case "xml":
+          accept += "text/xml, ";
+          break;
+          
+        case "html":
+          accept += "text/html, ";
+          break;
+          
+        case "text":
+          accept += "text/plain, ";
+        
       }
-      mime += " text/html, */*";
       
-      client.setRequestHeader("Accept", mime);
+      accept += "*/*; q=0.1";
+      
+      client.setRequestHeader("Accept", accept);
       client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      client.setRequestHeader("Cache-Control", "No-Cache");
       
       if (typeof headers === "object") { // user defined headers
         
         for (header in headers) {
+          
           if (headers.hasOwnProperty(header)) {
             client.setRequestHeader(header, headers[header]);
           }
+          
         }
         
       }
