@@ -13,4 +13,4 @@ for the XMLHttpRequest object. The [XMLHttpRequest level 2][1] specification
 is still in draft and who knows, by the time it is finished and supported by 
 all *modern* browsers I may have completed this library.
 
-[1] http://dev.w3.org/2006/webapi/XMLHttpRequest-2/
+[1]: http://dev.w3.org/2006/webapi/XMLHttpRequest-2/
