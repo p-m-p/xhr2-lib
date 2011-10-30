@@ -13,13 +13,11 @@
   */
   w.$xhr = (function () {
   
-  
-    var exp = Object.create(null); // module api
-        
+    var exp = {}; // module api
+    
     
     // :ajax api
     
-  
     /**
       
       @method get
@@ -34,7 +32,7 @@
     */
     exp.get = function () {
       
-      var opts = _createOptions(arguments);
+      var opts = createOptions(arguments);
       opts.url += exp.serializeQS(opts.url, opts.data);
       
       exp.ajax(opts);
@@ -56,7 +54,7 @@
     */
     exp.getJSON = function () {
       
-      var opts = _mix(_createOptions(arguments), {dataType: "json"});
+      var opts = mix(createOptions(arguments), {dataType: "json"});
       opts.url += exp.serializeQS(opts.url, opts.data);
       
       exp.ajax(opts);
@@ -78,7 +76,7 @@
     */
     exp.getXML = function () {
       
-      var opts = _mix(_createOptions(arguments), {dataType: "xml"});
+      var opts = mix(createOptions(arguments), {dataType: "xml"});
       opts.url += exp.serializeQS(opts.url, opts.data);
       
       exp.ajax(opts);
@@ -100,7 +98,7 @@
     exp.post = function () {
       
       exp.ajax(
-        _mix(createOptions(arguments), {type: "post"})
+        mix(createOptions(arguments), {type: "post"})
       );
       
     };
@@ -127,8 +125,8 @@
       if (f && f.nodeName === "FORM") {
           
         fd = new FormData(f);
-        options = _mix(
-            _createOptions(args)
+        options = mix(
+            createOptions(args)
           , { url: f.action || w.location.href, type: "post", data: fd }
         );
         
@@ -153,15 +151,16 @@
       @param {Function} [cb] Success call back function
      
     */
-    exp.sendFile = function (url, file, cb) {
+    exp.sendFile = function (url, file, cb, progress) {
     	
     	exp.ajax({
     	   url: url + "?isFile"
     	 , data: file
-    	 , success: success
+    	 , success: cb
+    	 , progress: progress
     	 , type: "post"
     	 , headers: {
-      	   "X-File-Name": f.name
+      	   "X-File-Name": file.name
       	 }
     	});
     	
@@ -180,44 +179,44 @@
     exp.ajax = function (opts) {
       
       var client = new XMLHttpRequest()
-        , upload
-        , defaults = { // default request parameters
+        , upload = client.upload
+        , settings = mix({ // default request parameters
               progress: false
             , type: "get"
             , dataType: "html"
-          }
-        , opts = _mix(defaults, opts);
+            , async: true
+            , username: null
+            , password: null
+          }, opts);
         
-      // progress event listener
-      if (opts.progress && typeof opts.progress === "function") {
+      if (settings.progress && typeof settings.progress === "function") {
         
-        upload = client.upload;
-        
-        if (upload) {
-          upload.callback = opts.progress;
-          upload.addEventListener("progress", _progress, false);
-        }
+        upload.callback = settings.progress;
+        upload.addEventListener("progress", progress, false);
         
       }
       
-      if (opts.timeout && typeof opts.timeout === "number") {
-        client.timeout = opts.timeout;
+      if (settings.timeout && typeof settings.timeout === "number") {
+        client.timeout = settings.timeout;
       }
       
-      // create connection
-      client.open(opts.type, opts.url);
-      _headers(client, opts.dataType, opts.headers);
+      client.open(
+          settings.type
+        , settings.url
+        , settings.async
+        , settings.username
+        , settings.password
+      );
       
-      // cache options and callback function
-      client.xhr2data = opts;
-      client.callback = opts.success;
+      addHeaders(client, settings.dataType, settings.headers);
       
-      // client event handlers
-      client.onreadystatechange = _stateChange;
-      client.onerror = _requestError;
+      // cache setting for pickup in state change handler
+      client.xhr2data = settings;
       
-      //send request
-      client.send(opts.data);
+      client.onreadystatechange = stateChange;
+      client.onerror = requestError;
+      
+      client.send(settings.data);
       
     };
     
@@ -257,7 +256,7 @@
           }
         }
         
-        qs = qs.substr(0, qs.length - 1);
+        qs = qs.substr(0, qs.length - 1); // scrub the last &
         
       }
       
@@ -269,8 +268,12 @@
     
     // :private    
     
+    /**
+     
+      @method  
     
-    var _createOptions = function (args) {
+    */
+    var createOptions = function (args) {
       
       var i = 0
         , opts = { url: args[0] }
@@ -305,13 +308,12 @@
   
       @private
     */
-    var _mix = function () {
+    var mix = function () {
       
       var ret = {}
         , i = 0
         , key;
       
-      // have options to mix into defaults
       if (arguments.length && typeof arguments[0] !== "undefined") {
         
         for (; i < arguments.length; ++i) { // each option set
@@ -334,41 +336,55 @@
     
   
     /**
-      Event handler for readystatechange events
-      Fires callback, if one was defined, with
-      formatted data as required
+      
+      @method stateChange
+      @description Event handler for readystatechange events
+        Fires callback, if one was defined, with
+        formatted data as required
   
       @private
+      
     */
-    var  _stateChange = function (ev) {
+    var stateChange = function (ev) {
       
       var resBody
         , xhr = ev.target
-        , clientData = xhr ? xhr.xhr2data : undefined;
+        , clientData = xhr.xhr2data || {};
         
-      if ((xhr && xhr.callback) && clientData) {
+      if (xhr.readyState === 4) {
         
-        if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
           
-          if (clientData.dataType === "json") {
-            try {
-              resBody = JSON.parse(xhr.responseText);
-            } catch (ex) {
-              // if invalid json data - don't error, just pass response body
+          if (typeof clientData.success === "function") {
+              
+            if (clientData.dataType === "json") {
+              
+              try {
+                resBody = JSON.parse(xhr.responseText);
+              } catch (ex) {
+                // if invalid json data - don't error, just pass response body
+                resBody = xhr.responseText;
+              }
+              
+            }
+            
+            else if (clientData.dataType === "xml") {
+              resBody = xhr.responseXML;
+            }
+            
+            else {
               resBody = xhr.responseText;
             }
+            
+            clientData.success.call(xhr, resBody);
+          
           }
           
-          else if (clientData.dataType === "xml") {
-            resBody = xhr.responseXML;
-          }
-          
-          else {
-            resBody = xhr.responseText;
-          }
-          
-          xhr.callback.call(xhr, resBody);
-          
+        }
+        
+        // for now - pass anything but 200 to error handler :$
+        else {
+          requestError(xhr);
         }
         
       }
@@ -382,10 +398,10 @@
   
       @private
     */
-    var  _progress = function (ev) {
+    var progress = function (ev) {
       
       if (ev && ev.lengthComputable) {
-        // call progress handler with pct loaded
+        ev.target.callback.call(ev, Math.round(ev.total / ev.loaded) * 100);
       }
       
     };
@@ -396,11 +412,15 @@
   
       @private
     */
-    var  _headers = function (client, resType, headers) {
+    var addHeaders = function (client, resType, headers) {
       
       var accept = "", header;
       
       switch ((resType || "").toLowerCase()) {
+        
+        case "html":
+          accept += "text/html, ";
+          break;
         
         case "json":
           accept += "application/json, text/javascript, ";
@@ -408,10 +428,6 @@
           
         case "xml":
           accept += "text/xml, ";
-          break;
-          
-        case "html":
-          accept += "text/html, ";
           break;
           
         case "text":
@@ -446,7 +462,7 @@
       
       @param {XMLHttpRequest} xhr The failed request object
      */
-    var  _requestError = function (xhr) {
+    var requestError = function (xhr) {
       
       console.log("error: ", xhr);
       

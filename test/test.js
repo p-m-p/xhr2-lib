@@ -86,9 +86,9 @@ asyncTest("getJSON", function () {
 
 asyncTest("getXML", function () {
   
-  $xhr.getXML("tes.xml", function (xml) {
+  $xhr.getXML("test.xml", function (xml) {
     
-    equal(1, 0);
+    equal(xml.documentElement.nodeName, "note");
     start();
     
   });
@@ -131,10 +131,15 @@ sf.addEventListener("click", function (ev) {
   
   var f = document.getElementById("file-field").files[0];
   
-  $xhr.sendFile("server.php", f, function (res) {
-    
-    console.log(res);
-    
-  });
+  $xhr.sendFile(
+      "server.php?isFile"
+    , f
+    , function (res) {
+        console.log(res);
+      }
+    , function (pct) {
+        console.log(pct);
+      }
+  );
   
 });
