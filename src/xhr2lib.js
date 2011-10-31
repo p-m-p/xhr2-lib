@@ -128,13 +128,11 @@
       if (f && f.nodeName === "FORM") {
           
         fd = new FormData(f);
+        args.unshift(f.action || w.location.href);
+        
         options = mix(
             createOptions(args)
-          , { 
-                url: f.action || w.location.href
-              , type: "post"
-              , data: fd
-            }
+          , { type: "post", data: fd }
         );
         
         exp.ajax(options);
@@ -156,16 +154,17 @@
       @param {String} url The URL to which the file should be sent
       @param {File} file A File object
       @param {Function} [cb] Success call back function
+      @param {String} [dataType] type of response data
      
     */
     exp.postFile = function () {
       
       var opts = createOptions(arguments)
     	
-    	exp.ajax(mix(
-    	    opts
-    	  , { type: "post", headers: {"X-File-Name": opts.data.name} }
-    	));
+      exp.ajax(mix(
+          opts
+        , { type: "post", headers: {"X-File-Name": opts.data.name} }
+      ));
     	
     };
     
@@ -280,8 +279,7 @@
       
       var i = 0
         , opts = { url: args[0] }
-        , params = Array.prototype.slice.call(args, 1)
-        , cbFound = false;
+        , params = Array.prototype.slice.call(args, 1);
         
       for (; i < params.length; ++i) {
         
@@ -292,13 +290,7 @@
             break;
             
           case "function": // success/progress callback functions
-            if (cbFound) {
-              opts.progress = params[i];
-            }
-            else {
-              opts.success = params[i];
-              cbFound = true;
-            }
+            opts.success = params[i];
             break;
             
           case "object": // data object
