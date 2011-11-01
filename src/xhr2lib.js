@@ -403,7 +403,7 @@
     var progress = function (ev) {
       
       if (ev && ev.lengthComputable) {
-        ev.target.callback.call(ev, Math.round(ev.total / ev.loaded) * 100);
+        ev.target.callback.call(ev, Math.round(ev.loaded / ev.total) * 100);
       }
       
     };
