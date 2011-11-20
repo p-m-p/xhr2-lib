@@ -107,7 +107,7 @@
   
     /**
     
-      @method postForm
+      @method sendForm
       @description Posts a form. The action attribute of the form is used to 
         determine the destination. If no action attribute is present the 
         current location is used.
@@ -152,13 +152,13 @@
       
       @public
       @param {String} url The URL to which the file should be sent
-      @param {File} file A File object
+      @param {File} file A File or Blob object
       @param {Function} [cb] Success call back function
-      @param {Function} [progress] Upload progress event handler
       @param {String} [dataType] type of response data
+      @param {Function} [progress] Upload progress event handler
      
     */
-    exp.postFile = function () {
+    exp.sendFile = function () {
       
       var opts = createOptions(arguments)
     	
