@@ -271,9 +271,9 @@
     // :private    
     
     /**
+      Juggles the parameters for the short cut functions
      
-      @method  
-    
+      @private
     */
     var createOptions = function (args) {
       
@@ -338,14 +338,11 @@
     
   
     /**
-      
-      @method stateChange
-      @description Event handler for readystatechange events
-        Fires callback, if one was defined, with
-        formatted data as required
+      Event handler for readystatechange events
+      Fires callback, if one was defined, with
+      formatted data as required
   
       @private
-      
     */
     var stateChange = function (ev) {
       
@@ -394,7 +391,7 @@
     };
   
     
-    /*
+    /**
       Fires upload progress event handler with percentage
       of upload complete and total
   
@@ -437,7 +434,7 @@
         
       }
       
-      accept += "*/*;q=0.1";
+      accept += "*/*;q=0.01";
       
       client.setRequestHeader("Accept", accept);
       client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
@@ -461,9 +458,7 @@
       Default error handler for requests
       
       @private
-      
-      @param {XMLHttpRequest} xhr The failed request object
-     */
+    */
     var requestError = function (xhr) {
       
       console.log("error: ", xhr);

@@ -3,9 +3,123 @@
   <title>XHR2 Library</title>
 </head>
 <body>
+  
+  <header>
+    
+    <h1>XHR 2 Demos and Documentation</h1>
+    
+  </header>
+  
+  <section id="method-descriptions">
+    
+    <article>
+    
+      <h2>postForm(form [, callback] [, dataType])</h2>
+      
+      <section class="method-demo">
+        
+        <form action="test/serer.php" method="post" id="test-form">
+          
+          <div>
+            <input id="name" type="text" name="name" value="">
+            <label for="name">Name</label>
+          </div>
+          
+          <div>
+            <input id="email" type="text" name="email" value="">
+            <label for="email">Email</label>
+          </div>
+          
+          <div>
+            <input type="submit" name="test" value="Send">
+          </div>
+          
+        </form>
+        
+        <div class="demo-source">
+          
+<pre><code>
+&lt;form action="test/server.php" method="post" id="example-form"&gt;
+  ...
+&lt;/form&gt;
+
+&lt;script&gt;
+  var form = document.getElementById("example-form");
+  
+  form.addEventListener("submit", function showResponse (ev) {
+  
+    ev.preventDefault();
+  
+    $xhr.postForm(form, function (res) {
+      
+      var elem = document.createElement('p');
+      elem.innerHTML = res;
+      form.appendChild(elem);
+      
+    });
+  
+  }, false);
+&lt;script&gt;
+</code></pre>
+          
+        </div>
+      
+      </section>
+    
+    </article>
+    
+    <form action="" method="post">
+      
+      <input type="file" id="file-field" name="upload" multiple>
+      <input id="send-file" type="submit" name="sendFile" value="send file">
+      
+    </form>
+    
+  </section>
+  
+  <script src="src/xhr2lib.js"></script>
   <script>
+  
+    (function () {
+      
+      var tf = document.getElementById("test-form")
+        , sf = document.getElementById("send-file");
+      
+      tf.addEventListener("submit", function (ev) {
+      
+        ev.preventDefault();
+      
+        $xhr.postForm(tf, function (res) {
+          
+          console.log(res);
+          
+          var elem = document.createElement('p');
+          elem.innerHTML = res;
+          tf.appendChild(elem);
+          
+        });
+      
+      }, false);
+      
+      sf.addEventListener("click", function (ev) {
+        
+        ev.preventDefault();
+        
+        $xhr.postFile(
+            "test/server.php?isFile"
+          , document.getElementById("file-field").files[0]
+          , function (res) {
+              console.log(res);
+            }
+          , function (pct) {
+              console.log(pct);
+            }
+          , "text"
+        );
+        
+      });
     
-    
+    })();
     
   </script>
 </body>
