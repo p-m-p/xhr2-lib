@@ -195,7 +195,7 @@ $xhr.getJSON(
   request. This function will receive the response data as it's only parameter.
 
 The `getXML` method is a short cut to the `ajax` method where the desired 
-response data type is an XML document/Fragment.
+response data type is an XML Document/Fragment.
 
 ####Example
 ```js
@@ -212,4 +212,85 @@ $xhr.getXML(
     }
   
 );
+```
+
+---
+
+###post(url [, data] [,success, dataType])
+
++ **url** - The URL from which to get data.
++ **data** - Request data object (Plain, FormData, File or Blob) to be sent to 
+  the server.
++ **success** - Callback function to run on successful completion of the 
+  request. This function will receive the response data as it's only parameter.
++ **dataType** - Format of response data (default = HTML).
+
+The `post` method is a short cut to the `ajax` method.
+
+####Example
+```js
+$xhr.post(
+  
+    "test/server.php"
+    
+  , { 
+        action: "register new user"
+      , username: "Joe bloggs"
+      , email: "joe@bloggs.com"
+      , telephone: "0208 123 4567"
+    }
+  
+  , function success(json) {
+    
+      console.log("userid: " + json.newUserID);
+    
+    }
+    
+  , "json"
+  
+);
+```
+
+---
+
+###ajax(settings)
+
+**settings** - The request settings consisting of:
+
++ **url** - The URL to which the request is to be sent.
++ **type** - The type of HTTP request (default = GET).
++ **dataType** - Format of the response data (default = HTML).
++ **async** - Flag to determine if request should be made asynchronously (
+  default = true).
++ **username** - Username to be used for access authentication.
++ **password** - Password to be used for access authentication.
++ **success** - Callback function to run on successful completion of the 
+  request. This function will receive the response data as it's only parameter.
++ **progress** - Event handler to run on the upload progress event emission.
+  This function will receive the percentage of the upload progress as it's only
+  parameter and is scoped to the upload event object.
++ **headers** - Optional HTTP request headers.
++ **error** - Function to run if the request fails.
++ *more to come.....*
+
+The `ajax` method is the core of the library and is utilised in all of the shor
+cut methods outlined above.
+
+####Example
+```js
+$xhr.post({
+  
+    url: "http://www.google.com"
+  
+  , type: "get"
+  
+  , success: function (html) {
+  
+      console.log(html);
+      
+    }
+    
+  , dataType: "html"
+  
+});
 ```
