@@ -22,10 +22,10 @@ Documentation
 
 ###sendForm(form [, callback, dataType])
 
-  **form** - A HTMLFormElement.
-  **callback** - Callback function to run on successful completion of the 
-    request.
-  **dataType** - Format of response data (default = HTML).
++ **form** - A HTMLFormElement.
++ **callback** - Callback function to run on successful completion of the 
+  request.
++ **dataType** - Format of response data (default = HTML).
 
 The send form method takes a HTML form element and sends it to the server. The 
 request type and url are taken from the form\'s action and method attributes
