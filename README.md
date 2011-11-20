@@ -72,7 +72,7 @@ attributes are not defined.
 + **dataType** - Format of response data (default = HTML).
 + **progress** - Event handler to run on the upload progress event emission.
   This function will receive the percentage of the upload progress as it's only
-  parameter and is scoped to the upload event object.
+  parameter and is bound to the upload event object.
   
 The `sendFile` method takes a `File` or `Blob` object (see: [File API][2]) and
 sends it to the specified URL.
@@ -268,7 +268,7 @@ $xhr.post(
   request. This function will receive the response data as it's only parameter.
 + **progress** - Event handler to run on the upload progress event emission.
   This function will receive the percentage of the upload progress as it's only
-  parameter and is scoped to the upload event object.
+  parameter and is bound to the upload event object.
 + **headers** - Additional HTTP request headers.
 + **error** - Function to run if the request fails.
 + *more to come.....*
