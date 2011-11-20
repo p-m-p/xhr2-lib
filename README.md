@@ -60,6 +60,9 @@ attributes are not defined.
   
 </script>
 ```
+
+---
+
 ###sendFile(url, file [, success, dataType] [, progress])
 
 + **url** - The URL to which the file is to be sent.
@@ -88,7 +91,8 @@ sends it to the specified URL.
 
 <script>
 
-  var sf = document.getElementById("file-field");
+  var sf = document.getElementById("file-field")
+    , up = document.getElementById("progress-inner");
   
   sf.addEventListener("change", function (ev) {
     
@@ -120,4 +124,92 @@ sends it to the specified URL.
   });
   
 </script>
+```
+
+---
+
+###get(url [, data] [,success, dataType])
+
++ **url** - The URL from which to get data.
++ **data** - Request data object to be sent to the server.
++ **success** - Callback function to run on successful completion of the 
+  request. This function will receive the response data as it's only parameter.
++ **dataType** - Format of response data (default = HTML).
+
+The `get` method is a short cut to the `ajax` method.
+
+####Example
+```js
+$xhr.get(
+  
+    "test/server.php"
+    
+  , { username: "Joe bloggs"}
+  
+  , function success(html) {
+    
+      document.getElementById("user-info").innerHTML = html;
+    
+    }
+  
+);
+```
+
+---
+
+###getJSON(url [, data] [,success])
+
++ **url** - The URL from which to get data.
++ **data** - Request data object to be sent to the server.
++ **success** - Callback function to run on successful completion of the 
+  request. This function will receive the response data as it's only parameter.
+
+The `getJSON` method is a short cut to the `ajax` method where the desired 
+response data type is JSON.
+
+####Example
+```js
+$xhr.getJSON(
+  
+    "test/server.php"
+    
+  , { username: "Joe bloggs"}
+  
+  , function success(data) {
+    
+      console.log("userid: " + data.userid);
+      console.log("last login: " + data.lastLogin);
+    
+    }
+  
+);
+```
+
+---
+
+###getXML(url [, data] [,success])
+
++ **url** - The URL from which to get data.
++ **data** - Request data object to be sent to the server.
++ **success** - Callback function to run on successful completion of the 
+  request. This function will receive the response data as it's only parameter.
+
+The `getXML` method is a short cut to the `ajax` method where the desired 
+response data type is an XML document/Fragment.
+
+####Example
+```js
+$xhr.getXML(
+  
+    "test/server.php"
+    
+  , { weather: "London" }
+  
+  , function success(xml) {
+    
+      console.log(xml.documentElement);
+    
+    }
+  
+);
 ```
