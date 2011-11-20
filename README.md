@@ -269,16 +269,16 @@ $xhr.post(
 + **progress** - Event handler to run on the upload progress event emission.
   This function will receive the percentage of the upload progress as it's only
   parameter and is scoped to the upload event object.
-+ **headers** - Optional HTTP request headers.
++ **headers** - Additional HTTP request headers.
 + **error** - Function to run if the request fails.
 + *more to come.....*
 
-The `ajax` method is the core of the library and is utilised in all of the shor
+The `ajax` method is the core of the library and is utilised by all of the short
 cut methods outlined above.
 
 ####Example
 ```js
-$xhr.post({
+$xhr.ajax({
   
     url: "http://www.google.com"
   
