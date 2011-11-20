@@ -118,7 +118,7 @@
       @param {String} [dataType] type of response data
      
      */
-     exp.postForm = function () {
+     exp.sendForm = function () {
        
       var fd
         , options
@@ -132,7 +132,7 @@
         
         options = mix(
             createOptions(args)
-          , { type: "post", data: fd }
+          , { type: f.method || "post", data: fd }
         );
         
         exp.ajax(options);
@@ -154,6 +154,7 @@
       @param {String} url The URL to which the file should be sent
       @param {File} file A File object
       @param {Function} [cb] Success call back function
+      @param {Function} [progress] Upload progress event handler
       @param {String} [dataType] type of response data
      
     */
@@ -212,7 +213,7 @@
       
       addHeaders(client, settings.dataType, settings.headers);
       
-      // cache setting for pickup in state change handler
+      // cache settings for pickup in state change handler
       client.xhr2data = settings;
       
       client.onreadystatechange = stateChange;
@@ -247,15 +248,18 @@
         
         if (!~url.search(/\?/)) {
           qs = "?";
-        } 
+        }
+        
         else {
           qs = "&";
         }
         
         for (var key in data) {
+          
           if (data.hasOwnProperty(key)) {
             qs += key + "=" + data[key] + "&";
           }
+          
         }
         
         qs = qs.substr(0, qs.length - 1); // scrub the last &
@@ -279,7 +283,8 @@
       
       var i = 0
         , opts = { url: args[0] }
-        , params = Array.prototype.slice.call(args, 1);
+        , params = Array.prototype.slice.call(args, 1)
+        , foundCB = false;
         
       for (; i < params.length; ++i) {
         
@@ -289,9 +294,22 @@
             opts.dataType = params[i];
             break;
             
+            
           case "function": // success/progress callback functions
-            opts.success = params[i];
+          
+            if (foundCB) { // already registered success callback add progress
+              opts.progress = params[i];
+            }
+            
+            else {
+              
+              opts.success = params[i];
+              foundCB = true;
+              
+            }
+            
             break;
+            
             
           case "object": // data object
             opts.data = params[i];

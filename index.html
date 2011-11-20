@@ -1,6 +1,12 @@
 <html>
 <head>
   <title>XHR2 Library</title>
+  <style>
+    
+    #progress-outer { width: 400px; border: solid 1px silver }
+    #progress-inner { width: 0; height: 5px; background-color: orange }
+    
+  </style>
 </head>
 <body>
   
@@ -18,7 +24,7 @@
       
       <section class="method-demo">
         
-        <form action="test/serer.php" method="post" id="test-form">
+        <form action="test/server.php" method="post" id="test-form">
           
           <div>
             <input id="name" type="text" name="name" value="">
@@ -50,7 +56,7 @@
   
     ev.preventDefault();
   
-    $xhr.postForm(form, function (res) {
+    $xhr.postForm(form, function success(res) {
       
       var elem = document.createElement('p');
       elem.innerHTML = res;
@@ -71,7 +77,10 @@
     <form action="" method="post">
       
       <input type="file" id="file-field" name="upload" multiple>
-      <input id="send-file" type="submit" name="sendFile" value="send file">
+      
+      <div id="progress-outer">
+        <div id="progress-inner"></div>
+      </div>
       
     </form>
     
@@ -83,15 +92,14 @@
     (function () {
       
       var tf = document.getElementById("test-form")
-        , sf = document.getElementById("send-file");
+        , sf = document.getElementById("file-field")
+        , up = document.getElementById("progress-inner");
       
       tf.addEventListener("submit", function (ev) {
       
         ev.preventDefault();
       
         $xhr.postForm(tf, function (res) {
-          
-          console.log(res);
           
           var elem = document.createElement('p');
           elem.innerHTML = res;
@@ -101,20 +109,31 @@
       
       }, false);
       
-      sf.addEventListener("click", function (ev) {
+      sf.addEventListener("change", function (ev) {
         
         ev.preventDefault();
         
         $xhr.postFile(
+          
             "test/server.php?isFile"
+            
           , document.getElementById("file-field").files[0]
-          , function (res) {
-              console.log(res);
+          
+          , function success(res) {
+            
+              up.style.backgroundColor = "#0F0";
+              up.style.width = "100%";
+              
             }
-          , function (pct) {
-              console.log(pct);
+            
+          , function progress(pct) {
+              
+              up.style.width = pct + "%";
+              
             }
+            
           , "text"
+          
         );
         
       });
