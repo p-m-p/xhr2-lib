@@ -22,9 +22,10 @@ Documentation
 
 ###sendForm(form [, callback, dataType])
 
-**form** - A HTMLFormElement.
-**callback** - Callback function to run on successful completion of the request.
-**dataType** - Format of response data (default = HTML).
+  **form** - A HTMLFormElement.
+  **callback** - Callback function to run on successful completion of the 
+    request.
+  **dataType** - Format of response data (default = HTML).
 
 The send form method takes a HTML form element and sends it to the server. The 
 request type and url are taken from the form\'s action and method attributes
@@ -33,11 +34,11 @@ attributes are not defined.
 
 ####Example
 ```js
-&lt;form action="test/server.php" method="post" id="example-form"&gt;
+<form action="test/server.php" method="post" id="example-form">
   ...
-&lt;/form&gt;
+<form>
 
-&lt;script&gt;
+<script>
   var form = document.getElementById("example-form");
   
   form.addEventListener("submit", function showResponse (ev) {
@@ -53,6 +54,6 @@ attributes are not defined.
     });
   
   }, false);
-&lt;script&gt;
+<script>
 ```
 
