@@ -38,7 +38,7 @@ attributes are not defined.
 ```js
 <form action="test/server.php" method="post" id="example-form">
   ...
-<form>
+</form>
 
 <script>
 
@@ -58,7 +58,7 @@ attributes are not defined.
   
   }, false);
   
-<script>
+</script>
 ```
 ###sendFile(url, file [, success, dataType] [, progress])
 
