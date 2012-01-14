@@ -45,7 +45,12 @@ elseif (array_key_exists('email', $_POST)) {
 }
 
 elseif (array_key_exists('isFile', $_GET)) {
+
+  sleep(20);
   
-  file_put_contents($_SERVER['HTTP_X_FILE_NAME'], file_get_contents("php://input"));
+  file_put_contents(
+      $_SERVER['HTTP_X_FILE_NAME']
+    , file_get_contents("php://input")
+  );
   
 }

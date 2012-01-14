@@ -12,7 +12,7 @@
   
   <header>
     
-    <h1>XHR 2 Demos and Documentation</h1>
+    <h1>XHR2 Demos and Documentation</h1>
     
   </header>
         
@@ -54,12 +54,25 @@
       var tf = document.getElementById("test-form")
         , sf = document.getElementById("file-field")
         , up = document.getElementById("progress-inner");
+
+      if (!$xhr.supported()) {
+        alert("Your browser does not support xhr2");
+      }
+
+      $xhr.defaultError(function (err, st, s) {
+        
+        console.log("xhr: ", this);
+        console.log("error: ", err);
+        console.log("status text: ", st);
+        console.log("status: ", s);
+
+      });
       
       tf.addEventListener("submit", function (ev) {
       
         ev.preventDefault();
       
-        $xhr.postForm(tf, function (res) {
+        $xhr.sendForm(tf, function (res) {
           
           var elem = document.createElement('p');
           elem.innerHTML = res;
@@ -73,7 +86,7 @@
         
         ev.preventDefault();
         
-        $xhr.postFile(
+        $xhr.sendFile(
           
             "test/server.php?isFile"
             

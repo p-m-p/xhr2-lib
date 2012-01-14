@@ -13,7 +13,40 @@
   */
   w.$xhr = (function () {
   
-    var exp = {}; // module api
+    var exp = {} // module api
+      , globals = {}; // global event handlers and settings
+
+
+    exp.supported = function () {
+
+      var xhr = new XMLHttpRequest;
+      
+      if (typeof xhr.upload === "undefined") {
+        return false;
+      }
+
+      return true;
+
+    };
+
+
+    // :global handlers
+
+    /**
+
+      @method defaultError
+      @description global error handler for all ajax errors
+
+    */
+    exp.defaultError = function (fn) {
+      
+      if (typeof fn === "function") {
+        globals.err = fn;
+      }
+
+      return this;
+
+    };
     
     
     // :ajax api
@@ -35,7 +68,7 @@
       var opts = createOptions(arguments);
       opts.url += exp.serializeQS(opts.url, opts.data);
       
-      exp.ajax(opts);
+      return exp.ajax(opts);
       
     };
     
@@ -57,7 +90,7 @@
       var opts = mix(createOptions(arguments), {dataType: "json"});
       opts.url += exp.serializeQS(opts.url, opts.data);
       
-      exp.ajax(opts);
+      return exp.ajax(opts);
       
     };
     
@@ -79,7 +112,7 @@
       var opts = mix(createOptions(arguments), {dataType: "xml"});
       opts.url += exp.serializeQS(opts.url, opts.data);
       
-      exp.ajax(opts);
+      return exp.ajax(opts);
       
     };
        
@@ -98,7 +131,7 @@
     */
     exp.post = function () {
       
-      exp.ajax(
+      return exp.ajax(
         mix(createOptions(arguments), {type: "post"})
       );
       
@@ -135,7 +168,7 @@
           , { type: f.method || "post", data: fd }
         );
         
-        exp.ajax(options);
+        return exp.ajax(options);
         
       } 
       
@@ -162,7 +195,7 @@
       
       var opts = createOptions(arguments)
     	
-      exp.ajax(mix(
+      return exp.ajax(mix(
           opts
         , { type: "post", headers: {"X-File-Name": opts.data.name} }
       ));
@@ -181,7 +214,7 @@
     */
     exp.ajax = function (opts) {
       
-      var client = new XMLHttpRequest()
+      var client = new XMLHttpRequest
         , upload = client.upload
         , settings = mix({ // default request parameters
               progress: false
@@ -190,17 +223,25 @@
             , async: true
             , username: null
             , password: null
+            , timeout: 1000
           }, opts);
         
-      if (settings.progress && typeof settings.progress === "function") {
+      if (typeof settings.progress === "function") {
         
         upload.callback = settings.progress;
-        upload.addEventListener("progress", progress, false);
+        upload.onprogress = progress;
         
       }
       
-      if (settings.timeout && typeof settings.timeout === "number") {
-        client.timeout = settings.timeout;
+      if (settings.timeout > 0) {
+
+        settings.timer = setTimeout(function () {
+
+          client = requestTimeout(client);
+          client = null;
+          
+        }, settings.timeout);
+
       }
       
       client.open(
@@ -220,6 +261,8 @@
       client.onerror = requestError;
       
       client.send(settings.data);
+
+      return client;
       
     };
     
@@ -369,45 +412,58 @@
         , clientData = xhr.xhr2data || {};
         
       if (xhr.readyState === xhr.DONE) {
+
+        if (clientData.timer) {
+          clearTimeout(clientData.timer);
+        }
         
-        if (xhr.status === 200) {
+        switch (xhr.status) {
+
+          case 200:
           
-          if (typeof clientData.success === "function") {
+            if (typeof clientData.success === "function") {
+                
+              if (clientData.dataType === "json") {
+                
+                try {
+                  resBody = JSON.parse(xhr.responseText);
+                } catch (ex) {
+                  // if invalid json data - don't error, just pass response body
+                  resBody = xhr.responseText;
+                }
+                
+              }
               
-            if (clientData.dataType === "json") {
+              else if (clientData.dataType === "xml") {
+                resBody = xhr.responseXML;
+              }
               
-              try {
-                resBody = JSON.parse(xhr.responseText);
-              } catch (ex) {
-                // if invalid json data - don't error, just pass response body
+              else {
                 resBody = xhr.responseText;
               }
               
-            }
+              clientData.success.call(xhr, resBody);
             
-            else if (clientData.dataType === "xml") {
-              resBody = xhr.responseXML;
             }
+
+            break;
+
+          // FIXME handle other response types
+
+          case 404:
+          case 500:
             
-            else {
-              resBody = xhr.responseText;
-            }
-            
-            clientData.success.call(xhr, resBody);
-          
-          }
-          
-        }
-        
-        // for now - pass anything but 200 to error handler :$
-        else {
-          requestError(xhr);
+            requestError(ev);
+            break;
+
         }
         
       }
       
     };
-  
+
+
+    // :private  
     
     /**
       Fires upload progress event handler with percentage
@@ -477,10 +533,69 @@
       
       @private
     */
-    var requestError = function (xhr) {
+    var requestError = function (ev) {
       
-      console.log("error: ", xhr);
+      var xhr = ev.target, fn;
+
+      if (xhr) {
+
+        fn = errorHandler(xhr);
+        
+        if (fn) {
+          fn.call(xhr, ev, xhr.statusText, xhr.status);
+        }
+
+      }
       
+    };
+
+
+    /**
+      Request timeout handler
+
+      @private
+    */
+    var requestTimeout = function (xhr) {
+      
+      var fn = errorHandler(xhr);
+
+      xhr.abort();
+      
+      if (fn) {
+
+        fn.call(
+            undefined
+          , {
+                message: "Request timed out"
+              , type: "XHR2RequestTimeout"
+            }
+          , "timeout"
+          , xhr.status
+        );
+
+      }
+
+      xhr = null;
+
+    };
+
+    /**
+      Gets the default or request defined error handler
+
+      @private
+    */
+    var errorHandler = function (xhr) {
+      
+      if (xhr.clientData && typeof xhr.clientData.error === "function") {
+        return xhr.clientData.error;
+      }
+
+      if (globals.err) {
+        return globals.err;
+      }
+
+      return undefined;
+
     };
   
     
