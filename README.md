@@ -69,6 +69,7 @@ do not have an explicit error handler defined.
   $xhr.post("unknownpage.php", {test: "testing"});
 
 </script>
+```
 
 ###sendForm(form [, success, dataType])
 
