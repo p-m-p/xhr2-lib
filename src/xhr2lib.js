@@ -17,15 +17,26 @@
       , globals = {}; // global event handlers and settings
 
 
+    /**
+
+      @method supported
+      @description Tests if XMLHttpRequest level 2 is supported by the user's
+        browser
+
+      @returns {boolean}
+
+    */
     exp.supported = function () {
 
       var xhr = new XMLHttpRequest;
       
-      if (typeof xhr.upload === "undefined") {
-        return false;
-      }
+      return (
 
-      return true;
+        typeof xhr.upload !== "undefined" &&
+        typeof w.FormData !== "undefined" &&
+        typeof w.File !== "undefined"
+
+      );
 
     };
 
@@ -37,11 +48,36 @@
       @method defaultError
       @description global error handler for all ajax errors
 
+      @param {Function} fn The error handler function
+
+      @returns {$xhr} The receiver for chainability
+
     */
     exp.defaultError = function (fn) {
       
       if (typeof fn === "function") {
         globals.err = fn;
+      }
+
+      return this;
+
+    };
+
+
+    /**
+
+      @method defaultSuccess
+      @description global success handler for all ajax requests
+
+      @param {Function} fn The success handler function
+
+      @returns {$xhr} The receiver for chainability
+
+    */
+    exp.defaultSuccess = function (fn) {
+      
+      if (typeof fn === "function") {
+        globals.success = fn;
       }
 
       return this;
@@ -61,6 +97,8 @@
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
+
+      @returns {XMLHttpRequest} The client xhr object
       
     */
     exp.get = function () {
@@ -83,6 +121,8 @@
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
+
+      @returns {XMLHttpRequest} The client xhr object
       
     */
     exp.getJSON = function () {
@@ -105,6 +145,8 @@
       @param {String} url destination URL
       @param {Object} [data] request parameters
       @param {Function} [cb] success call back function
+
+      @returns {XMLHttpRequest} The client xhr object
       
     */
     exp.getXML = function () {
@@ -127,6 +169,8 @@
       @param {Object} [data] Post data
       @param {Function} [cb] success call back function
       @param {String} [dataType] type of response data
+
+      @returns {XMLHttpRequest} The client xhr object
       
     */
     exp.post = function () {
@@ -149,6 +193,8 @@
       @param {HTMLFormElement} form A HTML Form element
       @param {Function} [cb] success call back function
       @param {String} [dataType] type of response data
+
+      @returns {XMLHttpRequest} The client xhr object
      
      */
      exp.sendForm = function () {
@@ -189,6 +235,8 @@
       @param {Function} [cb] Success call back function
       @param {String} [dataType] type of response data
       @param {Function} [progress] Upload progress event handler
+
+      @returns {XMLHttpRequest} The client xhr object
      
     */
     exp.sendFile = function () {
@@ -210,6 +258,8 @@
   
       @public
       @param {Object} opts The options for the ajax request
+
+      @returns {XMLHttpRequest} The client xhr object
       
     */
     exp.ajax = function (opts) {
@@ -223,8 +273,42 @@
             , async: true
             , username: null
             , password: null
-            , timeout: 1000
-          }, opts);
+            , timeout: 0
+          }, opts)
+        , tmp
+        , key;
+
+      settings.type = settings.type.toLowerCase();
+
+      if (
+            typeof settings.data === "object" && 
+            settings.data.constructor.toString().indexOf("FormData") === -1
+          ) {
+
+        if (settings.type === "get") {
+
+          settings.url += exp.serializeQS(settings.url, settings.data);
+          settings.data = null;
+
+        }
+
+        else {
+
+          tmp = new FormData;
+
+          for (key in settings.data) {
+
+            if (settings.data.hasOwnProperty(key)) {          
+              tmp.append(key, settings.data[key]);
+            }
+
+          }
+
+          settings.data = tmp;
+
+        }
+
+      }
         
       if (typeof settings.progress === "function") {
         
@@ -239,7 +323,7 @@
 
           client = requestTimeout(client);
           client = null;
-          
+
         }, settings.timeout);
 
       }
@@ -274,7 +358,9 @@
     /**
       
       @method serializeQS
-      @description Serialises a data object to a query string
+      @description Serialises a data object to a query string. Only the query
+        string is returned, the url is required to determine if the returned 
+        query string is to be appended to an existing set of query parameters.
   
       @public
       @param {String} url the destination url
@@ -409,17 +495,20 @@
       
       var resBody
         , xhr = ev.target
-        , clientData = xhr.xhr2data || {};
+        , clientData = xhr.xhr2data || {}
+        , genericStatus;
         
       if (xhr.readyState === xhr.DONE) {
+
+        genericStatus = Math.round(xhr.status / 100);
 
         if (clientData.timer) {
           clearTimeout(clientData.timer);
         }
         
-        switch (xhr.status) {
+        switch (genericStatus) {
 
-          case 200:
+          case 2: // FIXME handle 304...
           
             if (typeof clientData.success === "function") {
                 
@@ -427,9 +516,10 @@
                 
                 try {
                   resBody = JSON.parse(xhr.responseText);
-                } catch (ex) {
-                  // if invalid json data - don't error, just pass response body
-                  resBody = xhr.responseText;
+                } 
+
+                catch (ex) {
+                  // TODO: call error handler with parse error
                 }
                 
               }
@@ -448,10 +538,9 @@
 
             break;
 
-          // FIXME handle other response types
 
-          case 404:
-          case 500:
+          case 4:
+          case 5:
             
             requestError(ev);
             break;
@@ -542,8 +631,17 @@
         fn = errorHandler(xhr);
         
         if (fn) {
+
           fn.call(xhr, ev, xhr.statusText, xhr.status);
+          return;
+
         }
+
+        throw {
+            type: "XHR2BadRequestError"
+          , message: xhr.statusText || "Failed request"
+          , target: xhr
+        };
 
       }
       
@@ -578,6 +676,7 @@
       xhr = null;
 
     };
+
 
     /**
       Gets the default or request defined error handler

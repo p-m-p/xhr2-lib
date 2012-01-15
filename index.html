@@ -1,118 +1,73 @@
 <html>
 <head>
   <title>XHR2 Library</title>
-  <style>
-    
-    #progress-outer { width: 400px; border: solid 1px silver }
-    #progress-inner { width: 0; height: 5px; background-color: orange }
-    
-  </style>
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
 </head>
 <body>
-  
-  <header>
-    
-    <h1>XHR2 Demos and Documentation</h1>
-    
-  </header>
-        
-    <form action="test/server.php" method="post" id="test-form">
-      
-      <div>
-        <input id="name" type="text" name="name" value="">
-        <label for="name">Name</label>
-      </div>
-      
-      <div>
-        <input id="email" type="text" name="email" value="">
-        <label for="email">Email</label>
-      </div>
-      
-      <div>
-        <input type="submit" name="test" value="Send">
-      </div>
-      
-    </form>
-    
-    <form action="" method="post">
-      
-      <input type="file" id="file-field" name="upload" multiple>
-      
-      <div id="progress-outer">
-        <div id="progress-inner"></div>
-      </div>
-      
-    </form>
-    
-  </section>
-  
-  <script src="src/xhr2lib.js"></script>
-  <script>
-  
-    (function () {
-      
-      var tf = document.getElementById("test-form")
-        , sf = document.getElementById("file-field")
-        , up = document.getElementById("progress-inner");
 
-      if (!$xhr.supported()) {
-        alert("Your browser does not support xhr2");
-      }
+  <div id="all-content">
+  
+    <header>
+      
+      <h1>XHR2-lib Examples</h1>
+      
+    </header>
 
-      $xhr.defaultError(function (err, st, s) {
-        
-        console.log("xhr: ", this);
-        console.log("error: ", err);
-        console.log("status text: ", st);
-        console.log("status: ", s);
+    <section>
 
-      });
+      <h2>Sending a file with upload progress</h2>
       
-      tf.addEventListener("submit", function (ev) {
-      
-        ev.preventDefault();
-      
-        $xhr.sendForm(tf, function (res) {
-          
-          var elem = document.createElement('p');
-          elem.innerHTML = res;
-          tf.appendChild(elem);
-          
-        });
-      
-      }, false);
-      
-      sf.addEventListener("change", function (ev) {
+      <form action="" method="post">
         
-        ev.preventDefault();
+        <input type="file" id="file-field" name="upload">
         
-        $xhr.sendFile(
-          
-            "test/server.php?isFile"
-            
-          , document.getElementById("file-field").files[0]
-          
-          , function success(res) {
-            
-              up.style.backgroundColor = "#0F0";
-              up.style.width = "100%";
-              
-            }
-            
-          , function progress(pct) {
-              
-              up.style.width = pct + "%";
-              
-            }
-            
-          , "text"
-          
-        );
+        <div id="progress-outer">
+          <div id="progress-inner"></div>
+        </div>
         
-      });
-    
-    })();
-    
-  </script>
+      </form>
+      
+    </section>
+
+    <section>
+
+      <h2>Sending a form</h2>
+
+      <form action="test/server.php" method="post" id="test-form" enctype="multipart/form-data">
+        
+        <div>
+          <input id="name" type="text" name="name" value="">
+          <label for="name">Name</label>
+        </div>
+        
+        <div>
+          <input id="email" type="text" name="email" value="">
+          <label for="email">Email</label>
+        </div>
+
+        <div>
+          <textarea id="comment" name="comment" rows="3" cols="20"></textarea>
+          <label for="comment">Comment</label>
+        </div>
+        
+        <div>
+          <input type="submit" name="test" value="Send">
+        </div>
+        
+      </form>
+
+    </section>
+
+    <footer>
+
+      <span>&copy; <a href="http://philparsons.co.uk">Phil Parsons</a></span>
+
+    </footer>
+
+  </div>
+  
+  <script src="src/xhr2lib.min.js"></script>
+  <script src="examples/ex.js"></script>
 </body>
 </html>

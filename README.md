@@ -1,26 +1,74 @@
 XMLHttpRequest Level 2 Ajax library
 ===
 
-*If you stumble across this project and use this library, as it is, in any 
-production code then may the sky fall on your head.*
-
 Current state of this project
 ---
 
-So this project is something I am building to progress my knowledge of the 
-mechanics behind Ajax while getting up to speed with the new specifications
+This project is something I am building to progress my knowledge of HTTP,
+and Ajax while getting up to speed with the new specifications
 for the XMLHttpRequest object. The [XMLHttpRequest level 2][1] specification 
-is still in draft and who knows, by the time it is finished and supported by 
-all *modern* browsers I may have completed this library.
+is still in draft and is not supported by any current version of Internet
+Explorer or Opera.
 
 [1]: http://dev.w3.org/2006/webapi/XMLHttpRequest-2/
 [2]: http://www.w3.org/TR/FileAPI/
+[3]: http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface
+
+Tests
+---
+
+Yada, yada.... play now, test later :/
 
 Documentation
 ---
 
 *The documentation here is a work in progress and will, most definitely, change
 over time.*
+
+###supported()
+
+Returns true if the client browser supports xhr2lib, false otherwise.
+
+####Example
+```js
+<script>
+
+  if ($xhr.supported) {   
+    // do something amazing
+  }
+
+  else {
+    // load in a flash/not so magic iFrame solution... or just give up
+  }
+  
+</script>
+```
+
+###defaultError(fn)
+
++ **fn** - A Function
+
+The `defaultError` method sets up a default error handler for all requests that
+do not have an explicit error handler defined.
+
+####Example
+```js
+<script>
+
+  $xhr.defaultError(function (err, st, s) {
+    
+    console.log("xhr: ", this);
+    console.log("error: ", err);
+    console.log("status text: ", st);
+    console.log("status: ", s);
+
+  });
+
+  // 404 from the below invalid url will be handled by 
+  // the above
+  $xhr.post("unknownpage.php", {test: "testing"});
+
+</script>
 
 ###sendForm(form [, success, dataType])
 
@@ -33,6 +81,8 @@ The `sendForm` method takes a HTML form element and sends it to the server. The
 request type and url are taken from the form\'s action and method attributes
 respectively and default to the current window location and POST if these 
 attributes are not defined.
+
+The `sendForm` method will also send file fields (see: [FormData Interface][3]).
 
 ####Example
 ```js
