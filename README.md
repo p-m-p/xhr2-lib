@@ -33,7 +33,7 @@ Returns true if the client browser supports xhr2lib, false otherwise.
 ```js
 <script>
 
-  if ($xhr.supported) {   
+  if ($xhr.supported()) {
     // do something amazing
   }
 
