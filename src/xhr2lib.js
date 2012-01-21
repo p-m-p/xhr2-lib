@@ -1,18 +1,18 @@
 (function (w) {
-  
+
   "use strict";
-  
+
   /**
-    
+
     @author <a href="http://www.profilepicture.co.uk">Phil Parsons</a>
-    
+
     @namespace $xhr
-    
+
     @class
-    
+
   */
   w.$xhr = (function () {
-  
+
     var exp = {} // module api
       , globals = {}; // global event handlers and settings
 
@@ -29,7 +29,7 @@
     exp.supported = function () {
 
       var xhr = new XMLHttpRequest;
-      
+
       return (
 
         typeof xhr.upload !== "undefined" &&
@@ -54,7 +54,7 @@
 
     */
     exp.defaultError = function (fn) {
-      
+
       if (typeof fn === "function") {
         globals.err = fn;
       }
@@ -75,7 +75,7 @@
 
     */
     exp.defaultSuccess = function (fn) {
-      
+
       if (typeof fn === "function") {
         globals.success = fn;
       }
@@ -83,87 +83,78 @@
       return this;
 
     };
-    
-    
+
+
     // :ajax api
-    
+
     /**
-      
+
       @method get
       @description Convenience function for simple HTML get
         requests
-  
+
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
 
       @returns {XMLHttpRequest} The client xhr object
-      
+
     */
     exp.get = function () {
-      
-      var opts = createOptions(arguments);
-      opts.url += exp.serializeQS(opts.url, opts.data);
-      
-      return exp.ajax(opts);
-      
+
+      return exp.ajax(createOptions(arguments));
+
     };
-    
-  
+
+
     /**
-      
+
       @method getJSON
       @description Convenience function for simple JSON get
         requests
-  
+
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
 
       @returns {XMLHttpRequest} The client xhr object
-      
+
     */
     exp.getJSON = function () {
-      
-      var opts = mix(createOptions(arguments), {dataType: "json"});
-      opts.url += exp.serializeQS(opts.url, opts.data);
-      
-      return exp.ajax(opts);
-      
+
+      return exp.ajax(mix(createOptions(arguments), {dataType: "json"}));
+
     };
-    
-  
+
+
     /**
-      
+
       @method getXML
       @description Convenience function for simple XML get
         requests
-  
+
       @public
       @param {String} url destination URL
       @param {Object} [data] request parameters
       @param {Function} [cb] success call back function
 
       @returns {XMLHttpRequest} The client xhr object
-      
+
     */
     exp.getXML = function () {
-      
-      var opts = mix(createOptions(arguments), {dataType: "xml"});
-      opts.url += exp.serializeQS(opts.url, opts.data);
-      
-      return exp.ajax(opts);
-      
+
+      return exp.ajax(mix(createOptions(arguments), {dataType: "xml"}));
+
     };
-       
-  
+
+
     /**
-    
+
       @method post;
       @description Convenience method for simple posts
-    
+
       @public
       @param {String} url destination URL
       @param {Object} [data] Post data
@@ -171,64 +162,62 @@
       @param {String} [dataType] type of response data
 
       @returns {XMLHttpRequest} The client xhr object
-      
+
     */
     exp.post = function () {
-      
-      return exp.ajax(
-        mix(createOptions(arguments), {type: "post"})
-      );
-      
+
+      return exp.ajax(mix(createOptions(arguments), {type: "post"}));
+
     };
-    
-  
+
+
     /**
-    
+
       @method sendForm
-      @description Posts a form. The action attribute of the form is used to 
-        determine the destination. If no action attribute is present the 
+      @description Posts a form. The action attribute of the form is used to
+        determine the destination. If no action attribute is present the
         current location is used.
-      
+
       @public
       @param {HTMLFormElement} form A HTML Form element
       @param {Function} [cb] success call back function
       @param {String} [dataType] type of response data
 
       @returns {XMLHttpRequest} The client xhr object
-     
-     */
-     exp.sendForm = function () {
-       
+
+    */
+    exp.sendForm = function () {
+
       var fd
         , options
         , f = arguments[0]
         , args = Array.prototype.slice.call(arguments, 1);
-       
+
       if (f && f.nodeName === "FORM") {
-          
+
         fd = new FormData(f);
         args.unshift(f.action || w.location.href);
-        
+
         options = mix(
             createOptions(args)
           , { type: f.method || "post", data: fd }
         );
-        
+
         return exp.ajax(options);
-        
-      } 
-      
+
+      }
+
       else throw new Error("HTMLFormElement expected");
-      
+
     };
-    
-    
+
+
     /**
-    
+
       @method sendFile
       @description Posts a file. The file's name can be retrieved on the server
         side from the X-File-Name HTTP Header.
-      
+
       @public
       @param {String} url The URL to which the file should be sent
       @param {File} file A File or Blob object
@@ -237,33 +226,33 @@
       @param {Function} [progress] Upload progress event handler
 
       @returns {XMLHttpRequest} The client xhr object
-     
+
     */
     exp.sendFile = function () {
-      
+
       var opts = createOptions(arguments)
-    	
+
       return exp.ajax(mix(
           opts
         , { type: "post", headers: {"X-File-Name": opts.data.name} }
       ));
-    	
+
     };
-    
-    
+
+
     /**
-      
+
       @method ajax
       @description Core Ajax method used in all ajax methods;
-  
+
       @public
       @param {Object} opts The options for the ajax request
 
       @returns {XMLHttpRequest} The client xhr object
-      
+
     */
     exp.ajax = function (opts) {
-      
+
       var client = new XMLHttpRequest
         , upload = client.upload
         , settings = mix({ // default request parameters
@@ -274,6 +263,7 @@
             , username: null
             , password: null
             , timeout: 0
+            , withCredentials: false
           }, opts)
         , tmp
         , key;
@@ -281,13 +271,14 @@
       settings.type = settings.type.toLowerCase();
 
       if (
-            typeof settings.data === "object" && 
-            settings.data.constructor.toString().indexOf("FormData") === -1
+            typeof settings.data === "object" &&
+            !exp.isTypeOf(settings.data, "formdata") &&
+            !exp.isTypeOf(settings.data, "file")
           ) {
 
         if (settings.type === "get") {
 
-          settings.url += exp.serializeQS(settings.url, settings.data);
+          settings.url = exp.serialize(opts.data, opts.url);
           settings.data = null;
 
         }
@@ -298,8 +289,15 @@
 
           for (key in settings.data) {
 
-            if (settings.data.hasOwnProperty(key)) {          
-              tmp.append(key, settings.data[key]);
+            if (settings.data.hasOwnProperty(key)) {
+
+              tmp.append(
+                  key
+                , exp.isTypeOf(settings.data[key], "array") ?
+                    settings.data[key].join() :
+                    settings.data[key]
+              );
+
             }
 
           }
@@ -309,14 +307,14 @@
         }
 
       }
-        
+
       if (typeof settings.progress === "function") {
-        
+
         upload.callback = settings.progress;
         upload.onprogress = progress;
-        
+
       }
-      
+
       if (settings.timeout > 0) {
 
         settings.timer = setTimeout(function () {
@@ -327,7 +325,7 @@
         }, settings.timeout);
 
       }
-      
+
       client.open(
           settings.type
         , settings.url
@@ -335,169 +333,196 @@
         , settings.username
         , settings.password
       );
-      
+
+      client.withCredentials = settings.withCredentials;
       addHeaders(client, settings.dataType, settings.headers);
-      
+
       // cache settings for pickup in state change handler
       client.xhr2data = settings;
-      
+
       client.onreadystatechange = stateChange;
       client.onerror = requestError;
-      
+
       client.send(settings.data);
 
       return client;
-      
+
     };
-    
-    
-    
+
+
+
     // :Utils api
-    
-    
+
+
     /**
-      
-      @method serializeQS
-      @description Serialises a data object to a query string. Only the query
-        string is returned, the url is required to determine if the returned 
-        query string is to be appended to an existing set of query parameters.
-  
+
+      @method serialize
+      @description Serialises a data object to a query string. If the appendTo
+        string is supplied then the serialized object will be appended to that
+        string.
+
       @public
-      @param {String} url the destination url
       @param {Object} data the request data
-  
-      @returns {String} data object serialised
-      
+      @param {String} [appendTo] an existing query string/url
+
+      @returns {String} data object serialised and appropriately appended to
+        appendTo, if supplied.
+
     */
-    exp.serializeQS = function (url, data) {
-      
+    exp.serialize = function (data, appendTo) {
+
       var qs = "";
-      
+
+      appendTo || (appendTo = "");
+
       if (typeof data === "object") {
-        
-        if (!~url.search(/\?/)) {
+
+        if (appendTo.indexOf("?") === -1) {
           qs = "?";
         }
-        
+
         else {
           qs = "&";
         }
-        
+
         for (var key in data) {
-          
+
           if (data.hasOwnProperty(key)) {
             qs += key + "=" + data[key] + "&";
           }
-          
+
         }
-        
+
         qs = qs.substr(0, qs.length - 1); // scrub the last &
-        
+
       }
-      
-      return qs;
-      
+
+      return appendTo + qs;
+
     };
-    
-    
-    
-    // :private    
-    
+
+
+    /**
+
+      @method isTypeOf
+      @description Safe type checking for object types such as Array
+
+      @param {object} obj The object to test
+      @param {string} type The type to test against
+
+    */
+    exp.isTypeOf = function (obj, type) {
+
+      var cts = obj.constructor.toString().toLowerCase();
+      type = type.replace(/^\s*|\s*$/, "").toLowerCase();
+
+      if (cts.indexOf(type) !== -1) {
+        return true;
+      }
+
+      return false
+
+    };
+
+
+
+    // :private
+
     /**
       Juggles the parameters for the short cut functions
-     
+
       @private
     */
     var createOptions = function (args) {
-      
+
       var i = 0
         , opts = { url: args[0] }
         , params = Array.prototype.slice.call(args, 1)
         , foundCB = false;
-        
+
       for (; i < params.length; ++i) {
-        
+
         switch (typeof params[i]) {
-          
+
           case "string":
             opts.dataType = params[i];
             break;
-            
-            
+
+
           case "function": // success/progress callback functions
-          
+
             if (foundCB) { // already registered success callback add progress
               opts.progress = params[i];
             }
-            
+
             else {
-              
+
               opts.success = params[i];
               foundCB = true;
-              
+
             }
-            
+
             break;
-            
-            
+
+
           case "object": // data object
             opts.data = params[i];
-          
+
         }
-        
+
       }
-      
+
       return opts;
-      
+
     };
-    
-  
+
+
     /**
       Mixes passed in options with the defaults
-  
+
       @private
     */
     var mix = function () {
-      
+
       var ret = {}
         , i = 0
         , key;
-      
+
       if (arguments.length && typeof arguments[0] !== "undefined") {
-        
+
         for (; i < arguments.length; ++i) { // each option set
-          
+
           for (key in arguments[i]) {
-            
+
             if (arguments[i].hasOwnProperty(key)) {
               ret[key] = arguments[i][key];
             }
-            
+
           }
-          
+
         }
-        
+
       }
-      
+
       return ret;
-      
+
     };
-    
-  
+
+
     /**
       Event handler for readystatechange events
       Fires callback, if one was defined, with
       formatted data as required
-  
+
       @private
     */
     var stateChange = function (ev) {
-      
+
       var resBody
         , xhr = ev.target
         , clientData = xhr.xhr2data || {}
         , genericStatus;
-        
+
       if (xhr.readyState === xhr.DONE) {
 
         genericStatus = Math.round(xhr.status / 100);
@@ -505,35 +530,35 @@
         if (clientData.timer) {
           clearTimeout(clientData.timer);
         }
-        
+
         switch (genericStatus) {
 
-          case 2: // FIXME handle 304...
-          
+          case 2: // ----------------------------------------------------------- FIXME handle 304...
+
             if (typeof clientData.success === "function") {
-                
+
               if (clientData.dataType === "json") {
-                
+
                 try {
                   resBody = JSON.parse(xhr.responseText);
-                } 
+                }
 
                 catch (ex) {
                   // TODO: call error handler with parse error
                 }
-                
+
               }
-              
+
               else if (clientData.dataType === "xml") {
                 resBody = xhr.responseXML;
               }
-              
+
               else {
                 resBody = xhr.responseText;
               }
-              
+
               clientData.success.call(xhr, resBody);
-            
+
             }
 
             break;
@@ -541,95 +566,93 @@
 
           case 4:
           case 5:
-            
+
             requestError(ev);
             break;
 
         }
-        
+
       }
-      
+
     };
 
 
-    // :private  
-    
     /**
       Fires upload progress event handler with percentage
       of upload complete and total
-  
+
       @private
     */
     var progress = function (ev) {
-      
+
       if (ev && ev.lengthComputable) {
         ev.target.callback.call(ev, Math.round(ev.loaded / ev.total) * 100);
       }
-      
+
     };
-  
-    
+
+
     /**
       Add request headers including accept mime
-  
+
       @private
     */
     var addHeaders = function (client, resType, headers) {
-      
-      var accept = "", header;
-      
+
+      var accept, header;
+
       switch ((resType || "").toLowerCase()) {
-        
-        case "html":
-          accept += "text/html, ";
-          break;
-        
+
         case "json":
-          accept += "application/json, text/javascript, ";
+          accept = "application/json, text/javascript, ";
           break;
-          
+
         case "xml":
-          accept += "text/xml, application/xml, ";
+          accept = "text/xml, application/xml, ";
           break;
-          
+
         case "text":
-          accept += "text/plain, ";
-        
+          accept = "text/plain, ";
+          break;
+
+        default:
+          accept = "text/html, ";
+
       }
-      
+
       accept += "*/*;q=0.01";
-      
+
       client.setRequestHeader("Accept", accept);
       client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-      
+
       if (typeof headers === "object") { // user defined headers
-        
+
         for (header in headers) {
-          
+
           if (headers.hasOwnProperty(header)) {
             client.setRequestHeader(header, headers[header]);
           }
-          
+
         }
-        
+
       }
-      
+
     };
-  
-    
+
+
     /**
       Default error handler for requests
-      
+
       @private
     */
     var requestError = function (ev) {
-      
+
       var xhr = ev.target, fn;
 
       if (xhr) {
 
         fn = errorHandler(xhr);
-        
+
         if (fn) {
 
           fn.call(xhr, ev, xhr.statusText, xhr.status);
@@ -644,7 +667,7 @@
         };
 
       }
-      
+
     };
 
 
@@ -654,11 +677,11 @@
       @private
     */
     var requestTimeout = function (xhr) {
-      
+
       var fn = errorHandler(xhr);
 
       xhr.abort();
-      
+
       if (fn) {
 
         fn.call(
@@ -684,7 +707,7 @@
       @private
     */
     var errorHandler = function (xhr) {
-      
+
       if (xhr.clientData && typeof xhr.clientData.error === "function") {
         return xhr.clientData.error;
       }
@@ -696,11 +719,11 @@
       return undefined;
 
     };
-  
-    
+
+
     return exp; // export api
-    
-  
+
+
   })();
 
 })(window);
