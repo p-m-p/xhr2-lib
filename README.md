@@ -100,9 +100,7 @@ that do not have an explicit success handler defined.
 
     function swapContent (ev) {
 
-      var loc = this.href;
-
-      $xhr.get(loc);
+      $xhr.get(this.href);
       ev.preventDefault();
 
     }
@@ -202,7 +200,7 @@ sends it to the specified URL.
 
         "test/server.php?isFile"
 
-      , document.getElementById("file-field").files[0]
+      , sf.files[0]
 
       , function success(res) {
 
