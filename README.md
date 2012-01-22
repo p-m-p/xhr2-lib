@@ -10,11 +10,6 @@ for the XMLHttpRequest object. The [XMLHttpRequest level 2][1] specification
 is still in draft and is not supported by any current version of Internet
 Explorer or Opera.
 
-[1]: http://dev.w3.org/2006/webapi/XMLHttpRequest-2/
-[2]: http://www.w3.org/TR/FileAPI/
-[3]: http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface
-[4]: http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/
-
 Tests
 ---
 
@@ -39,7 +34,7 @@ Returns true if the client browser supports xhr2lib, false otherwise.
   }
 
   else {
-    // load in a flash/not so magic iFrame solution... or just give up
+    // take some other action
   }
 
 </script>
@@ -118,12 +113,15 @@ that do not have an explicit success handler defined.
 </script>
 ```
 
-###.sendForm(form [, success, dataType])
+###.sendForm(form [, success, dataType] [, progress])
 
 + **form** - A HTMLFormElement.
 + **success** - Callback function to run on successful completion of the
   request. This function will receive the response data as it's only parameter.
 + **dataType** - Format of response data (default = HTML).
++ **progress** - Event handler to run on the upload progress event emission.
+  This function will receive the percentage of the upload progress as it's only
+  parameter and is bound to the upload event object.
 
 The `sendForm` method takes a HTML form element and sends it to the server. The
 request type and url are taken from the form\'s action and method attributes
@@ -390,7 +388,7 @@ $xhr.ajax({
 
   , type: "get"
 
-  , timeout: 2000
+  , timeout: 5000
 
   , success: function (data) {
 
@@ -402,3 +400,8 @@ $xhr.ajax({
 
 });
 ```
+
+[1]: http://dev.w3.org/2006/webapi/XMLHttpRequest-2/
+[2]: http://www.w3.org/TR/FileAPI/
+[3]: http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface
+[4]: http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/
