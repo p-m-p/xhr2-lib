@@ -376,7 +376,7 @@ $xhr.post(
     as it's only two parameters.
 + **timeout** - The number of milliseconds to wait before timing out the
     request.
-+ **withCredentials - True if user credentials should be sent with cross-origin
++ **withCredentials** - True if user credentials should be sent with cross-origin
     requests (see [CORS example][4]) (default = false)
 
 The `ajax` method is the core of the library and is utilised by all of the short
