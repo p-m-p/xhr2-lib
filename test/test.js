@@ -1,54 +1,104 @@
-module("$xhr");
+module("$xhr", {
 
-test("serializeQS()", function () {
+  teardown: function () {
+
+    $xhr
+      .defaultError(function () { console.log(this, arguments); })
+      .defaultSuccess(function () { console.log(this, arguments); });
+
+  }
+
+});
+
+test("serialize()", function () {
 
   var url1 = "http://www.example.com"
     , url2 = "http://www.example.com?withqs=true";
 
   equal(
-      $xhr.serializeQS(url1, {paramOne: "test",  paramTwo: "test"})
-    , "?paramOne=test&paramTwo=test"
+      $xhr.serialize({paramOne: "test",  paramTwo: "test"})
+    , "paramOne=test&paramTwo=test"
+    , "No Url"
+  );
+
+  equal(
+      $xhr.serialize({paramOne: "test",  paramTwo: "test"}, url1)
+    , "http://www.example.com?paramOne=test&paramTwo=test"
     , "Url without query string"
   );
 
   equal(
-      $xhr.serializeQS(url2, {paramOne: "test",  paramTwo: "test"})
-    , "&paramOne=test&paramTwo=test"
+      $xhr.serialize({paramOne: "test",  paramTwo: "test"}, url2)
+    , "http://www.example.com?withqs=true&paramOne=test&paramTwo=test"
     , "Url with query string"
   );
 
   equal(
-      $xhr.serializeQS(url1, {})
-    , ""
+      $xhr.serialize({}, url1)
+    , "http://www.example.com"
     , "Empty data object"
+  );
+
+  equal(
+      $xhr.serialize(undefined, url1)
+    , "http://www.example.com"
+    , "Undefined data object"
+  );
+
+  equal(
+      $xhr.serialize()
+    , ""
+    , "Nothing defined"
   );
 
 });
 
+
 asyncTest("get", function () {
 
   $xhr.get(
-      "server.php?testget"
+      "server.php"
     , {
-          title: "Testing get()"
+          testget: 1
+        , title: "Testing get()"
         , msg: "The test has passed"
       }
     , function (html) {
 
         equal(
             html.replace(/\s/g, "")
-          , "<header><h1>Testingget()</h1></header>" + 
-            "<section><p>Thetesthaspassed</p></section>" + 
-            "<footer><p>&copy;2011</p></footer>"  
-          , "needs a compare test here"
+          , "<header><h1>Testingget()</h1></header>" +
+            "<section><p>Thetesthaspassed</p></section>" +
+            "<footer><p>&copy;2011</p></footer>"
+          , "Data and callback"
         );
 
         start();
 
       }
   );
-  
+
+  stop();
+
+  $xhr.get(
+      "server.php?testget"
+    , function (html) {
+
+        equal(
+            html.replace(/\s/g, "")
+          , "<header><h1>notitle</h1></header>" +
+            "<section><p>nomessage</p></section>" +
+            "<footer><p>&copy;2011</p></footer>"
+          , "No data just callback"
+        );
+
+        start();
+
+      }
+  );
+
 });
+
 
 asyncTest("getJSON", function () {
 
@@ -58,7 +108,7 @@ asyncTest("getJSON", function () {
 
         deepEqual(
             data
-          ,  [
+          , [
                 {
                     firstname: "John"
                   , lastname: "Smith"
@@ -80,66 +130,155 @@ asyncTest("getJSON", function () {
 
         start();
 
-    });
-
-});
-
-asyncTest("getXML", function () {
-  
-  $xhr.getXML("test.xml", function (xml) {
-    
-    equal(xml.documentElement.nodeName, "note");
-    start();
-    
-  });
-  
-});
-
-asyncTest("ajax", function () {
-  
-   $xhr.ajax({
-      url: "server.php?testgetjson"
-    , timeout: 1
-    , success: function (res) {
-        console.log(this);
-        start();
-      }
-    , dataType: "json"
-   });
-  
-})
-
-var tf = document.getElementById("testForm");
-
-tf.addEventListener("submit", function (ev) {
-
-  ev.preventDefault();
-
-  $xhr.postForm(tf, {}, function (res) {
-    var elem = document.createElement('p');
-    elem.innerHTML = res;
-    tf.appendChild(elem);
-  });
-
-}, false);
-
-var sf = document.getElementById("send-file");
-
-sf.addEventListener("click", function (ev) {
-  
-  ev.preventDefault();
-  
-  var f = document.getElementById("file-field").files[0];
-  
-  $xhr.sendFile(
-      "server.php?isFile"
-    , f
-    , function (res) {
-        console.log(res);
-      }
-    , function (pct) {
-        console.log(pct);
       }
   );
-  
+
+  stop();
+
+  $xhr.getJSON(
+      "server.php"
+    , {
+          testgetjson: 1
+        , "users": "john,jane"
+      }
+    , function (data) {
+
+        deepEqual(
+            data
+          , [
+                {
+                    firstname: "John"
+                  , lastname: "Smith"
+                  , occupation: "Plumber"
+                }
+              , {
+                    firstname: "Jane"
+                  , lastname: "Smith"
+                  , occupation: "Accountant"
+                }
+            ]
+          , "Data object passed with callback function"
+        );
+
+        start();
+
+      }
+  );
+
+});
+
+
+asyncTest("getXML", function () {
+
+  $xhr.getXML("data/test.xml", function (xml) {
+
+    equal(xml.documentElement.nodeName, "note", "No data just callback");
+    start();
+
+  });
+
+  stop();
+
+  $xhr.getXML("data/xml.php", {rootnode: 'note'}, function (xml) {
+
+    equal(xml.documentElement.nodeName, "note", "Data and callback");
+    start();
+
+  });
+
+});
+
+
+asyncTest("post", function () {
+
+  $xhr.post(
+      "server.php"
+    , {
+          testgetjson: 1
+        , users: ["david", "jane"]
+      }
+    , function (data) {
+
+        deepEqual(
+            data
+          , [
+                {
+                    firstname: "Jane"
+                  , lastname: "Smith"
+                  , occupation: "Accountant"
+                }
+              , {
+                    firstname: "David"
+                  , lastname: "Bowe"
+                  , occupation: "Singer"
+                }
+            ]
+          , "Data with array, json response type and callback"
+        );
+
+        start();
+
+      }
+    , "json"
+  );
+
+});
+
+
+asyncTest("404 with defaultError handler", function () {
+
+  $xhr.defaultError(function (st, s) {
+
+    // two birds one stone
+    ok($xhr.isTypeOf(this, "XMLHttpRequest"), "test is type of");
+
+    equal(s, 404);
+    equal(st, "Not Found");
+
+    start();
+
+  });
+
+  $xhr.get("notfound.php");
+
+});
+
+
+asyncTest("500 with explicit error handler", function () {
+
+  $xhr.ajax({
+      url: "server.php"
+    , data: { test500: 1 }
+    , error: function (st, s) {
+
+        equal(s, 500);
+        equal(st, "Internal Server Error");
+
+        start();
+
+      }
+  });
+
+});
+
+
+asyncTest("defaultSuccess", function () {
+
+  $xhr.defaultSuccess(function (json) {
+
+    deepEqual(
+        json
+      , [{
+            firstname: "David"
+          , lastname: "Bowe"
+          , occupation: "Singer"
+        }]
+    );
+
+    start();
+
+  });
+
+  $xhr.getJSON("server.php", { testgetjson: 1, users: "david" });
+
 });

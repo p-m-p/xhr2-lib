@@ -373,9 +373,7 @@
 
       var qs = "";
 
-      appendTo || (appendTo = "");
-
-      if (typeof data === "object") {
+      if (appendTo && typeof appendTo === "string") {
 
         if (appendTo.indexOf("?") === -1) {
           qs = "?";
@@ -385,6 +383,14 @@
           qs = "&";
         }
 
+      }
+
+      else {
+        appendTo = "";
+      }
+
+      if (typeof data === "object") {
+
         for (var key in data) {
 
           if (data.hasOwnProperty(key)) {
@@ -393,11 +399,9 @@
 
         }
 
-        qs = qs.substr(0, qs.length - 1); // scrub the last &
-
       }
 
-      return appendTo + qs;
+      return appendTo + qs.substr(0, qs.length - 1); // scrub the last &;
 
     };
 
@@ -521,7 +525,8 @@
       var resBody
         , xhr = ev.target
         , clientData = xhr.xhr2data || {}
-        , genericStatus;
+        , genericStatus
+        , sh;
 
       if (xhr.readyState === xhr.DONE) {
 
@@ -535,7 +540,9 @@
 
           case 2: // ----------------------------------------------------------- FIXME handle 304...
 
-            if (typeof clientData.success === "function") {
+            sh = successHandler(clientData);
+
+            if (typeof sh === "function") {
 
               if (clientData.dataType === "json") {
 
@@ -557,7 +564,7 @@
                 resBody = xhr.responseText;
               }
 
-              clientData.success.call(xhr, resBody);
+              sh.call(xhr, resBody);
 
             }
 
@@ -655,16 +662,10 @@
 
         if (fn) {
 
-          fn.call(xhr, ev, xhr.statusText, xhr.status);
+          fn.call(xhr, xhr.statusText, xhr.status);
           return;
 
         }
-
-        throw {
-            type: "XHR2BadRequestError"
-          , message: xhr.statusText || "Failed request"
-          , target: xhr
-        };
 
       }
 
@@ -708,12 +709,32 @@
     */
     var errorHandler = function (xhr) {
 
-      if (xhr.clientData && typeof xhr.clientData.error === "function") {
-        return xhr.clientData.error;
+      if (xhr.xhr2data && typeof xhr.xhr2data.error === "function") {
+        return xhr.xhr2data.error;
       }
 
       if (globals.err) {
         return globals.err;
+      }
+
+      return undefined;
+
+    };
+
+
+    /**
+      Gets the default or request defined success handler
+
+      @private
+    */
+    var successHandler = function (xhr2data) {
+
+      if (xhr2data && xhr2data.success) {
+        return xhr2data.success;
+      }
+
+      if (globals.success) {
+        return globals.success;
       }
 
       return undefined;
