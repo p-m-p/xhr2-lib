@@ -420,11 +420,7 @@
       var cts = obj.constructor.toString().toLowerCase();
       type = type.replace(/^\s*|\s*$/, "").toLowerCase();
 
-      if (cts.indexOf(type) !== -1) {
-        return true;
-      }
-
-      return false
+      return cts.indexOf(type) !== -1;
 
     };
 
@@ -684,20 +680,8 @@
       xhr.abort();
 
       if (fn) {
-
-        fn.call(
-            undefined
-          , {
-                message: "Request timed out"
-              , type: "XHR2RequestTimeout"
-            }
-          , "timeout"
-          , xhr.status
-        );
-
+        fn.call(xhr, "timeout", xhr.status);
       }
-
-      xhr = null;
 
     };
 
