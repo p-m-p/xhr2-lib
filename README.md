@@ -13,6 +13,8 @@ with the `supported()` method--this library offers binary data transfer, upload
 progress events and cross origin requests in a simple and light weight API
 modelled on parts of the jQuery Ajax library.
 
+`xhr2-lib` is also supported for use in [web workers][6]
+
 Tests
 ---
 
@@ -414,3 +416,4 @@ $xhr.ajax({
 [3]: http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface
 [4]: http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/
 [5]: http://caniuse.com/xhr2
+[6]: http://dev.w3.org/html5/workers/
