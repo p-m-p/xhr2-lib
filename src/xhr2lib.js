@@ -1,4 +1,4 @@
-(function (w) {
+(function (ns) {
 
   "use strict";
 
@@ -11,7 +11,7 @@
     @class
 
   */
-  w.$xhr = (function () {
+  ns.$xhr = (function () {
 
     var exp = {} // module api
       , globals = {}; // global event handlers and settings
@@ -32,9 +32,12 @@
 
       return (
 
-        typeof xhr.upload !== "undefined" &&
-        typeof w.FormData !== "undefined" &&
-        typeof w.File !== "undefined"
+        typeof xhr.upload !== "undefined" && (
+          // Web worker
+          typeof ns.pushMessage !== "undefined" ||
+          // window
+          (typeof ns.FormData !== "undefined" && typeof ns.File !== "undefined")
+        )
 
       );
 
@@ -196,7 +199,7 @@
       if (f && f.nodeName === "FORM") {
 
         fd = new FormData(f);
-        args.unshift(f.action || w.location.href);
+        args.unshift(f.action || ns.location.href);
 
         options = mix(
             createOptions(args)
@@ -278,7 +281,7 @@
 
         if (settings.type === "get") {
 
-          settings.url = exp.serialize(opts.data, opts.url);
+          settings.url = exp.serialize(settings.data, settings.url);
           settings.data = null;
 
         }
@@ -521,35 +524,22 @@
       var resBody
         , xhr = ev.target
         , clientData = xhr.xhr2data || {}
-        , genericStatus
         , sh;
 
       if (xhr.readyState === xhr.DONE) {
-
-        genericStatus = Math.round(xhr.status / 100);
 
         if (clientData.timer) {
           clearTimeout(clientData.timer);
         }
 
-        switch (genericStatus) {
-
-          case 2: // ----------------------------------------------------------- FIXME handle 304...
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
 
             sh = successHandler(clientData);
 
             if (typeof sh === "function") {
 
               if (clientData.dataType === "json") {
-
-                try {
-                  resBody = JSON.parse(xhr.responseText);
-                }
-
-                catch (ex) {
-                  // TODO: call error handler with parse error
-                }
-
+                resBody = JSON.parse(xhr.responseText);
               }
 
               else if (clientData.dataType === "xml") {
@@ -561,19 +551,13 @@
               }
 
               sh.call(xhr, resBody);
+              return;
 
             }
 
-            break;
-
-
-          case 4:
-          case 5:
-
-            requestError(ev);
-            break;
-
         }
+
+        requestError(ev);
 
       }
 
@@ -657,10 +641,7 @@
         fn = errorHandler(xhr);
 
         if (fn) {
-
           fn.call(xhr, xhr.statusText, xhr.status);
-          return;
-
         }
 
       }
@@ -731,4 +712,4 @@
 
   })();
 
-})(window);
+})(self || window);

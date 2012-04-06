@@ -84,4 +84,8 @@ elseif (array_key_exists('test500', $_GET)) {
 
 }
 
+elseif (array_key_exists('notmodified', $_GET)) {
 
+  header('HTTP/1.1 304 Not Modified');
+
+}

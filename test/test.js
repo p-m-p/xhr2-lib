@@ -261,6 +261,19 @@ asyncTest("500 with explicit error handler", function () {
 
 });
 
+asyncTest("304 not modified", function () {
+
+  $xhr.get("server.php?notmodified", function () {
+
+    equal(this.status, 304);
+    equal(this.statusText, "Not Modified");
+
+    start();
+
+  });
+
+});
+
 
 asyncTest("defaultSuccess", function () {
 
@@ -280,5 +293,19 @@ asyncTest("defaultSuccess", function () {
   });
 
   $xhr.getJSON("server.php", { testgetjson: 1, users: "david" });
+
+});
+
+
+asyncTest("Web worker request", function () {
+
+  var worker = new Worker("worker.js");
+  worker.addEventListener("message", function (ev) {
+
+    equal("David", ev.data.firstname);
+    start();
+
+  })
+  worker.postMessage("verk it");
 
 });
