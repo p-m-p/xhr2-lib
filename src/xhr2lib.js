@@ -34,7 +34,7 @@
 
         typeof xhr.upload !== "undefined" && (
           // Web worker
-          typeof ns.pushMessage !== "undefined" ||
+          typeof ns.postMessage !== "undefined" ||
           // window
           (typeof ns.FormData !== "undefined" && typeof ns.File !== "undefined")
         )
