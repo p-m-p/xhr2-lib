@@ -6,7 +6,7 @@ Current state of this project
 
 The [XMLHttpRequest level 2][1] specification is in draft and is not supported
 by any current version of Internet Explorer or Opera. Check the current
-[state of support for xhr2][5] for a detailed summary of support.
+[state of support for xhr2][5] for a more detailed summary.
 
 For browsers that do support `xhr2-lib`--which can be checked during developemnt
 with the `supported()` method--this library offers binary data transfer, upload
