@@ -4,16 +4,24 @@ XMLHttpRequest Level 2 Ajax library
 Current state of this project
 ---
 
-This project is something I am building to progress my knowledge of HTTP,
-and Ajax while getting up to speed with the new specifications
-for the XMLHttpRequest object. The [XMLHttpRequest level 2][1] specification
-is still in draft and is not supported by any current version of Internet
-Explorer or Opera.
+The [XMLHttpRequest level 2][1] specification is in draft and is not supported
+by any current version of Internet Explorer or Opera. Check the current
+[state of support for xhr2][5] for a detailed summary of support.
+
+For browsers that do support `xhr2-lib`--which can be checked during developemnt
+with the `supported()` method--this library offers binary data transfer, upload
+progress events and cross origin requests in a simple and light weight API
+modelled on parts of the jQuery Ajax library.
 
 Tests
 ---
 
 Not yet exhaustive but tests can be run from /test/index.html.
+
+TODOs
+---
+* Add support for responseType of `blob` and `arraybuffer`
+* Investigate and implement better handling of 304 responses
 
 Documentation
 ---
@@ -405,3 +413,4 @@ $xhr.ajax({
 [2]: http://www.w3.org/TR/FileAPI/
 [3]: http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface
 [4]: http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/
+[5]: http://caniuse.com/xhr2
