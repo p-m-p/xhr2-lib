@@ -10,8 +10,8 @@ by any current version of Internet Explorer or Opera. Check the current
 
 For browsers that do support `xhr2-lib`--which can be checked during developemnt
 with the `supported()` method--this library offers binary data transfer, upload
-progress events and cross origin requests in a simple and light weight API
-modelled on parts of the jQuery Ajax library.
+progress events and cross origin requests in a simple and light weight (3.5KB
+minified and gzipped) API modelled on parts of the jQuery Ajax library.
 
 `xhr2-lib` is also supported for use in [web workers][6]
 
