@@ -338,7 +338,7 @@
       );
 
       client.withCredentials = settings.withCredentials;
-      addHeaders(client, settings.dataType, settings.headers);
+      addHeaders(client, settings.dataType, settings.headers, settings.cors);
 
       // cache settings for pickup in state change handler
       client.xhr2data = settings;
@@ -608,9 +608,7 @@
       }
 
       accept += "*/*;q=0.01";
-
       client.setRequestHeader("Accept", accept);
-      client.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
       if (typeof headers === "object") { // user defined headers
 
