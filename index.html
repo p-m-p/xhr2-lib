@@ -1,0 +1,523 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Xhr2-lib by p-m-p</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Xhr2-lib</h1>
+<p>XMLHttpRequest Level 2 Library</p>
+        <p class="view"><a href="https://github.com/p-m-p/xhr2-lib">View the Project on GitHub <small>p-m-p/xhr2-lib</small></a></p>
+        <ul>
+          <li><a href="https://github.com/p-m-p/xhr2-lib/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/p-m-p/xhr2-lib/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/p-m-p/xhr2-lib">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>XMLHttpRequest Level 2 Ajax library</h1>
+
+<h2>Current state of this project</h2>
+
+<p>The <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/">XMLHttpRequest level 2</a> specification is in draft and is not supported
+by any current version of Internet Explorer or Opera. Check the current
+<a href="http://caniuse.com/xhr2">state of support for xhr2</a> for a more detailed summary.</p>
+
+<p>For browsers that do support <code>xhr2-lib</code>--which can be checked during developemnt
+with the <code>supported()</code> method--this library offers binary data transfer, upload
+progress events and cross origin requests in a simple and light weight (3.5KB
+minified and gzipped) API modelled on parts of the jQuery Ajax library.</p>
+
+<p><code>xhr2-lib</code> is also supported for use in <a href="http://dev.w3.org/html5/workers/">web workers</a></p>
+
+<h2>Tests</h2>
+
+<p>Not yet exhaustive but tests can be run from /test/index.html.</p>
+
+<h2>TODOs</h2>
+
+<ul>
+<li>Add support for responseType of <code>blob</code> and <code>arraybuffer</code>
+</li>
+<li>Investigate and implement better handling of 304 responses</li>
+</ul><h2>Documentation</h2>
+
+<p><em>The documentation here is a work in progress and will, most definitely, change
+over time.</em></p>
+
+<h3>.supported()</h3>
+
+<p>Returns true if the client browser supports xhr2lib, false otherwise.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">$xhr</span><span class="p">.</span><span class="nx">supported</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// do something amazing</span>
+  <span class="p">}</span>
+
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// take some other action</span>
+  <span class="p">}</span>
+
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre>
+</div>
+
+
+<h3>.defaultError(fn)</h3>
+
+<ul>
+<li>
+<strong>fn</strong> - A Function</li>
+</ul><p>The <code>defaultError</code> method sets up a default error handler for all requests that
+do not have an explicit error handler defined.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+
+  <span class="nx">$xhr</span><span class="p">.</span><span class="nx">defaultError</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">st</span><span class="p">,</span> <span class="nx">s</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"xhr: "</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span> <span class="c1">// error handler is bound to the xhr object</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"status text: "</span><span class="p">,</span> <span class="nx">st</span><span class="p">);</span> <span class="c1">// status text e.g. 'Not Found'</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"status: "</span><span class="p">,</span> <span class="nx">s</span><span class="p">);</span> <span class="c1">// status e.g.404</span>
+
+  <span class="p">});</span>
+
+  <span class="c1">// 404 from the below invalid url will be handled by</span>
+  <span class="c1">// the above</span>
+  <span class="nx">$xhr</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s2">"unknownpage.php"</span><span class="p">,</span> <span class="p">{</span><span class="nx">test</span><span class="o">:</span> <span class="s2">"testing"</span><span class="p">});</span>
+
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre>
+</div>
+
+
+<h3>.defaultSuccess(fn)</h3>
+
+<ul>
+<li>
+<strong>fn</strong> - A Function</li>
+</ul><p>The <code>defaultSuccess</code> method sets up a default success handler for all requests
+that do not have an explicit success handler defined.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="o">&lt;</span><span class="nx">nav</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"home.html"</span><span class="o">&gt;</span><span class="nx">Home</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+  <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"about.html"</span><span class="o">&gt;</span><span class="nx">About</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+  <span class="o">&lt;</span><span class="nx">a</span> <span class="nx">href</span><span class="o">=</span><span class="s2">"contact.html"</span><span class="o">&gt;</span><span class="nx">Contact</span><span class="o">&lt;</span><span class="err">/a&gt;</span>
+<span class="o">&lt;</span><span class="err">/nav&gt;</span>
+
+<span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">"content"</span><span class="o">&gt;</span>
+  <span class="c">&lt;!--</span> <span class="nx">get</span> <span class="nx">some</span> <span class="nx">html</span> <span class="nx">and</span> <span class="nx">populate</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="err">/div&gt;</span>
+
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+
+  <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">$xhr</span><span class="p">.</span><span class="nx">defaultSuccess</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">html</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"content"</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">html</span><span class="p">;</span>
+    <span class="p">});</span>
+
+    <span class="kd">function</span> <span class="nx">swapContent</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nx">$xhr</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">href</span><span class="p">);</span>
+      <span class="nx">ev</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+
+    <span class="p">}</span>
+
+    <span class="c1">// set links to load destination url into conent container</span>
+    <span class="kd">var</span> <span class="nx">nl</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="s2">"nav &gt; a"</span><span class="p">)</span>
+      <span class="p">,</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">nl</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">nl</span><span class="p">.</span><span class="nx">item</span><span class="p">(</span><span class="nx">i</span><span class="p">).</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"click"</span><span class="p">,</span> <span class="nx">swapContent</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+    <span class="p">}</span>
+
+  <span class="p">})();</span>
+
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre>
+</div>
+
+
+<h3>.sendForm(form [, success, dataType] [, progress])</h3>
+
+<ul>
+<li>
+<strong>form</strong> - A HTMLFormElement.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+<li>
+<strong>dataType</strong> - Format of response data (default = HTML).</li>
+<li>
+<strong>progress</strong> - Event handler to run on the upload progress event emission.
+This function will receive the percentage of the upload progress as it's only
+parameter and is bound to the upload event object.</li>
+</ul><p>The <code>sendForm</code> method takes a HTML form element and sends it to the server. The
+request type and url are taken from the form\'s action and method attributes
+respectively and default to the current window location and POST if these
+attributes are not defined.</p>
+
+<p>The <code>sendForm</code> method will also send file fields (see: <a href="http://www.w3.org/TR/XMLHttpRequest2/#the-formdata-interface">FormData Interface</a>).</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="o">&lt;</span><span class="nx">form</span> <span class="nx">action</span><span class="o">=</span><span class="s2">"test/server.php"</span> <span class="nx">method</span><span class="o">=</span><span class="s2">"post"</span> <span class="nx">id</span><span class="o">=</span><span class="s2">"example-form"</span><span class="o">&gt;</span>
+  <span class="p">...</span>
+<span class="o">&lt;</span><span class="err">/form&gt;</span>
+
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+
+  <span class="kd">var</span> <span class="nx">form</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"example-form"</span><span class="p">);</span>
+
+  <span class="nx">form</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"submit"</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">showResponse</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="nx">ev</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+
+    <span class="nx">$xhr</span><span class="p">.</span><span class="nx">sendForm</span><span class="p">(</span><span class="nx">form</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="kd">var</span> <span class="nx">elem</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'p'</span><span class="p">);</span>
+      <span class="nx">elem</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">res</span><span class="p">;</span>
+      <span class="nx">form</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">elem</span><span class="p">);</span>
+
+    <span class="p">});</span>
+
+  <span class="p">},</span> <span class="kc">false</span><span class="p">);</span>
+
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre>
+</div>
+
+
+<hr><h3>.sendFile(url, file [, success, dataType] [, progress])</h3>
+
+<ul>
+<li>
+<strong>url</strong> - The URL to which the file is to be sent.</li>
+<li>
+<strong>file</strong> - File or Blob object to send.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+<li>
+<strong>dataType</strong> - Format of response data (default = HTML).</li>
+<li>
+<strong>progress</strong> - Event handler to run on the upload progress event emission.
+This function will receive the percentage of the upload progress as it's only
+parameter and is bound to the upload event object.</li>
+</ul><p>The <code>sendFile</code> method takes a <code>File</code> or <code>Blob</code> object (see: <a href="http://www.w3.org/TR/FileAPI/">File API</a>) and
+sends it to the specified URL.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="o">&lt;</span><span class="nx">form</span> <span class="nx">action</span><span class="o">=</span><span class="s2">""</span> <span class="nx">method</span><span class="o">=</span><span class="s2">"post"</span><span class="o">&gt;</span>
+
+  <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">"file"</span> <span class="nx">id</span><span class="o">=</span><span class="s2">"file-field"</span> <span class="nx">name</span><span class="o">=</span><span class="s2">"upload"</span> <span class="nx">multiple</span><span class="o">&gt;</span>
+
+  <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">"progress-outer"</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="s2">"progress-inner"</span><span class="o">&gt;&lt;</span><span class="err">/div&gt;</span>
+  <span class="o">&lt;</span><span class="err">/div&gt;</span>
+
+<span class="o">&lt;</span><span class="err">/form&gt;</span>
+
+<span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+
+  <span class="kd">var</span> <span class="nx">sf</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"file-field"</span><span class="p">)</span>
+    <span class="p">,</span> <span class="nx">up</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"progress-inner"</span><span class="p">);</span>
+
+  <span class="nx">sf</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s2">"change"</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">ev</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="nx">ev</span><span class="p">.</span><span class="nx">preventDefault</span><span class="p">();</span>
+
+    <span class="nx">$xhr</span><span class="p">.</span><span class="nx">sendFile</span><span class="p">(</span>
+
+        <span class="s2">"test/server.php?isFile"</span>
+
+      <span class="p">,</span> <span class="nx">sf</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+      <span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+
+          <span class="nx">up</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">backgroundColor</span> <span class="o">=</span> <span class="s2">"#0F0"</span><span class="p">;</span>
+          <span class="nx">up</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="s2">"100%"</span><span class="p">;</span>
+
+        <span class="p">}</span>
+
+      <span class="p">,</span> <span class="kd">function</span> <span class="nx">progress</span><span class="p">(</span><span class="nx">pct</span><span class="p">)</span> <span class="p">{</span>
+
+          <span class="nx">up</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">width</span> <span class="o">=</span> <span class="nx">pct</span> <span class="o">+</span> <span class="s2">"%"</span><span class="p">;</span>
+
+        <span class="p">}</span>
+
+      <span class="p">,</span> <span class="s2">"text"</span>
+
+    <span class="p">);</span>
+
+  <span class="p">});</span>
+
+<span class="o">&lt;</span><span class="err">/script&gt;</span>
+</pre>
+</div>
+
+
+<hr><h3>.get(url [, data] [,success, dataType])</h3>
+
+<ul>
+<li>
+<strong>url</strong> - The URL from which to get data.</li>
+<li>
+<strong>data</strong> - Request data object to be sent to the server.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+<li>
+<strong>dataType</strong> - Format of response data (default = HTML).</li>
+</ul><p>The <code>get</code> method is a short cut to the <code>ajax</code> method.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="nx">$xhr</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span>
+
+    <span class="s2">"test/server.php"</span>
+
+  <span class="p">,</span> <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">"Joe bloggs"</span><span class="p">}</span>
+
+  <span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">html</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"user-info"</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">html</span><span class="p">;</span>
+
+    <span class="p">}</span>
+
+<span class="p">);</span>
+</pre>
+</div>
+
+
+<hr><h3>.getJSON(url [, data] [,success])</h3>
+
+<ul>
+<li>
+<strong>url</strong> - The URL from which to get data.</li>
+<li>
+<strong>data</strong> - Request data object to be sent to the server.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+</ul><p>The <code>getJSON</code> method is a short cut to the <code>ajax</code> method where the desired
+response data type is JSON.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="nx">$xhr</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span>
+
+    <span class="s2">"test/server.php"</span>
+
+  <span class="p">,</span> <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">"Joe bloggs"</span><span class="p">}</span>
+
+  <span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"userid: "</span> <span class="o">+</span> <span class="nx">data</span><span class="p">.</span><span class="nx">userid</span><span class="p">);</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"last login: "</span> <span class="o">+</span> <span class="nx">data</span><span class="p">.</span><span class="nx">lastLogin</span><span class="p">);</span>
+
+    <span class="p">}</span>
+
+<span class="p">);</span>
+</pre>
+</div>
+
+
+<hr><h3>.getXML(url [, data] [,success])</h3>
+
+<ul>
+<li>
+<strong>url</strong> - The URL from which to get data.</li>
+<li>
+<strong>data</strong> - Request data object to be sent to the server.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+</ul><p>The <code>getXML</code> method is a short cut to the <code>ajax</code> method where the desired
+response data type is an XML Document/Fragment.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="nx">$xhr</span><span class="p">.</span><span class="nx">getXML</span><span class="p">(</span>
+
+    <span class="s2">"test/server.php"</span>
+
+  <span class="p">,</span> <span class="p">{</span> <span class="nx">weather</span><span class="o">:</span> <span class="s2">"London"</span> <span class="p">}</span>
+
+  <span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">xml</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">xml</span><span class="p">.</span><span class="nx">documentElement</span><span class="p">);</span>
+
+    <span class="p">}</span>
+
+<span class="p">);</span>
+</pre>
+</div>
+
+
+<hr><h3>.post(url [, data] [,success, dataType])</h3>
+
+<ul>
+<li>
+<strong>url</strong> - The URL from which to get data.</li>
+<li>
+<strong>data</strong> - Request data object (Plain, FormData, File or Blob) to be sent to
+the server.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter.</li>
+<li>
+<strong>dataType</strong> - Format of response data (default = HTML).</li>
+</ul><p>The <code>post</code> method is a short cut to the <code>ajax</code> method.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="nx">$xhr</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span>
+
+    <span class="s2">"test/server.php"</span>
+
+  <span class="p">,</span> <span class="p">{</span>
+        <span class="nx">action</span><span class="o">:</span> <span class="s2">"register new user"</span>
+      <span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s2">"Joe bloggs"</span>
+      <span class="p">,</span> <span class="nx">email</span><span class="o">:</span> <span class="s2">"joe@bloggs.com"</span>
+      <span class="p">,</span> <span class="nx">telephone</span><span class="o">:</span> <span class="s2">"0208 123 4567"</span>
+    <span class="p">}</span>
+
+  <span class="p">,</span> <span class="kd">function</span> <span class="nx">success</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"userid: "</span> <span class="o">+</span> <span class="nx">json</span><span class="p">.</span><span class="nx">newUserID</span><span class="p">);</span>
+
+    <span class="p">}</span>
+
+  <span class="p">,</span> <span class="s2">"json"</span>
+
+<span class="p">);</span>
+</pre>
+</div>
+
+
+<hr><h3>.ajax(settings)</h3>
+
+<p><strong>settings</strong> - The request settings consisting of:</p>
+
+<ul>
+<li>
+<strong>url</strong> - The URL to which the request is to be sent.</li>
+<li>
+<strong>type</strong> - The type of HTTP request (default = GET).</li>
+<li>
+<strong>dataType</strong> - Format of the response data (default = HTML).</li>
+<li>
+<strong>async</strong> - Flag to determine if request should be made asynchronously (
+default = true).</li>
+<li>
+<strong>username</strong> - Username to be used for access authentication.</li>
+<li>
+<strong>password</strong> - Password to be used for access authentication.</li>
+<li>
+<strong>success</strong> - Callback function to run on successful completion of the
+request. This function will receive the response data as it's only parameter
+and is bound to the client XMLHttpRequest object.</li>
+<li>
+<strong>progress</strong> - Event handler to run on the upload progress event emission.
+This function will receive the percentage of the upload progress as it's only
+parameter and is bound to the upload event object.</li>
+<li>
+<strong>headers</strong> - A map of additional HTTP request headers.</li>
+<li>
+<strong>error</strong> - Function to run if the request fails. The error function will be
+bound to the client XMLHttpRequest object and has the status text and status
+as it's only two parameters.</li>
+<li>
+<strong>timeout</strong> - The number of milliseconds to wait before timing out the
+request.</li>
+<li>
+<strong>withCredentials</strong> - True if user credentials should be sent with cross-origin
+requests (see <a href="http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/">CORS example</a>) (default = false)</li>
+</ul><p>The <code>ajax</code> method is the core of the library and is utilised by all of the short
+cut methods outlined above.</p>
+
+<h4>Example</h4>
+
+<div class="highlight">
+<pre><span class="nx">$xhr</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+
+    <span class="nx">url</span><span class="o">:</span> <span class="s2">"<a href="http://www.somecorsdomain.com">http://www.somecorsdomain.com</a>"</span>
+
+  <span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="p">{</span> <span class="nx">query</span><span class="o">:</span> <span class="s2">"some api call"</span> <span class="p">}</span>
+
+  <span class="p">,</span> <span class="nx">type</span><span class="o">:</span> <span class="s2">"get"</span>
+
+  <span class="p">,</span> <span class="nx">timeout</span><span class="o">:</span> <span class="mi">5000</span>
+
+  <span class="p">,</span> <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+
+    <span class="p">}</span>
+
+  <span class="p">,</span> <span class="nx">dataType</span><span class="o">:</span> <span class="s2">"json"</span>
+
+<span class="p">});</span>
+</pre>
+</div>
+
+
+<h2>License</h2>
+
+<p>Copyright (c) 2012 Phil Parsons</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/p-m-p">p-m-p</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-10142508-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
