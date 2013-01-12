@@ -311,27 +311,27 @@ asyncTest("Web worker request", function () {
 });
 
 asyncTest("Blob response type", function () {
-  $xhr.ajax({
-      url: 'data/cat-pic.jpg'
-    , dataType: 'blob'
-    , success: function (data) {
+  $xhr.get(
+      'data/cat-pic.jpg'
+    , function (data) {
         var img = new Blob([data], {type: 'image/jpeg'});
 
         equal(img.size, 35807);
         start();
       }
-  });
+    , 'blob'
+  );
 });
 
 asyncTest("ArrayBuffer response type", function () {
-  $xhr.ajax({
-      url: 'data/cat-pic.jpg'
-    , dataType: 'arraybuffer'
-    , success: function (data) {
+  $xhr.get(
+      'data/cat-pic.jpg'
+    , function (data) {
         var buffer = new Uint8Array(data);
 
         equal(buffer.byteLength, 35807);
         start();
       }
-  });
+    , 'arraybuffer'
+  );
 });
