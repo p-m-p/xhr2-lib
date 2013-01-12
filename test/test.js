@@ -313,10 +313,8 @@ asyncTest("Web worker request", function () {
 asyncTest("Blob response type", function () {
   $xhr.get(
       'data/cat-pic.jpg'
-    , function (data) {
-        var img = new Blob([data], {type: 'image/jpeg'});
-
-        equal(img.size, 35807);
+    , function (blob) {
+        equal(blob.size, 35807);
         start();
       }
     , 'blob'
@@ -326,9 +324,7 @@ asyncTest("Blob response type", function () {
 asyncTest("ArrayBuffer response type", function () {
   $xhr.get(
       'data/cat-pic.jpg'
-    , function (data) {
-        var buffer = new Uint8Array(data);
-
+    , function (buffer) {
         equal(buffer.byteLength, 35807);
         start();
       }
