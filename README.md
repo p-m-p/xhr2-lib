@@ -22,7 +22,7 @@ Not yet exhaustive but tests can be run from /test/index.html.
 
 TODOs
 ---
-* Add support for responseType of `blob` and `arraybuffer`
+* ~~Add support for responseType of `blob` and `arraybuffer`~~
 * Investigate and implement better handling of 304 responses
 
 Documentation

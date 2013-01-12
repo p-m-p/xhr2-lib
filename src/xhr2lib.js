@@ -296,6 +296,10 @@ SOFTWARE.
         , settings.password
       );
 
+      if (/^(blob|arraybuffer)$/.test(settings.dataType)) {
+        client.responseType = settings.dataType;
+      }
+
       client.withCredentials = settings.withCredentials;
       addHeaders(client, settings.dataType, settings.headers, settings.cors);
 
@@ -456,6 +460,9 @@ SOFTWARE.
             }
             else if (clientData.dataType === "xml") {
               resBody = xhr.responseXML;
+            }
+            else if (/^(blob|arraybuffer)$/.test(clientData.dataType)) {
+              resBody = xhr.response;
             }
             else {
               resBody = xhr.responseText;

@@ -309,3 +309,29 @@ asyncTest("Web worker request", function () {
   worker.postMessage("verk it");
 
 });
+
+asyncTest("Blob response type", function () {
+  $xhr.ajax({
+      url: 'data/cat-pic.jpg'
+    , dataType: 'blob'
+    , success: function (data) {
+        var img = new Blob([data], {type: 'image/jpeg'});
+
+        equal(img.size, 35807);
+        start();
+      }
+  });
+});
+
+asyncTest("ArrayBuffer response type", function () {
+  $xhr.ajax({
+      url: 'data/cat-pic.jpg'
+    , dataType: 'arraybuffer'
+    , success: function (data) {
+        var buffer = new Uint8Array(data);
+
+        equal(buffer.byteLength, 35807);
+        start();
+      }
+  });
+});
