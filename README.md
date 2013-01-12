@@ -28,9 +28,6 @@ TODOs
 Documentation
 ---
 
-*The documentation here is a work in progress and will, most definitely, change
-over time.*
-
 ###.supported()
 
 Returns true if the client browser supports xhr2lib, false otherwise.
@@ -42,7 +39,6 @@ Returns true if the client browser supports xhr2lib, false otherwise.
   if ($xhr.supported()) {
     // do something amazing
   }
-
   else {
     // take some other action
   }
@@ -62,15 +58,12 @@ do not have an explicit error handler defined.
 <script>
 
   $xhr.defaultError(function (st, s) {
-
     console.log("xhr: ", this); // error handler is bound to the xhr object
     console.log("status text: ", st); // status text e.g. 'Not Found'
     console.log("status: ", s); // status e.g.404
-
   });
 
-  // 404 from the below invalid url will be handled by
-  // the above
+  // 404 from the below invalid url will be handled by the above
   $xhr.post("unknownpage.php", {test: "testing"});
 
 </script>
@@ -98,16 +91,13 @@ that do not have an explicit success handler defined.
 <script>
 
   (function () {
-
     $xhr.defaultSuccess(function (html) {
       document.getElementById("content").innerHTML = html;
     });
 
     function swapContent (ev) {
-
       $xhr.get(this.href);
       ev.preventDefault();
-
     }
 
     // set links to load destination url into conent container
@@ -117,7 +107,6 @@ that do not have an explicit success handler defined.
     for (; i < nl.length; ++i) {
       nl.item(i).addEventListener("click", swapContent, false);
     }
-
   })();
 
 </script>
@@ -151,17 +140,14 @@ The `sendForm` method will also send file fields (see: [FormData Interface][3]).
   var form = document.getElementById("example-form");
 
   form.addEventListener("submit", function showResponse (ev) {
-
     ev.preventDefault();
 
     $xhr.sendForm(form, function success(res) {
-
       var elem = document.createElement('p');
+
       elem.innerHTML = res;
       form.appendChild(elem);
-
     });
-
   }, false);
 
 </script>
@@ -186,13 +172,11 @@ sends it to the specified URL.
 ####Example
 ```js
 <form action="" method="post">
-
   <input type="file" id="file-field" name="upload" multiple>
 
   <div id="progress-outer">
     <div id="progress-inner"></div>
   </div>
-
 </form>
 
 <script>
@@ -201,32 +185,20 @@ sends it to the specified URL.
     , up = document.getElementById("progress-inner");
 
   sf.addEventListener("change", function (ev) {
-
     ev.preventDefault();
 
     $xhr.sendFile(
-
         "test/server.php?isFile"
-
       , sf.files[0]
-
       , function success(res) {
-
           up.style.backgroundColor = "#0F0";
           up.style.width = "100%";
-
         }
-
       , function progress(pct) {
-
           up.style.width = pct + "%";
-
         }
-
       , "text"
-
     );
-
   });
 
 </script>
@@ -247,17 +219,11 @@ The `get` method is a short cut to the `ajax` method.
 ####Example
 ```js
 $xhr.get(
-
     "test/server.php"
-
   , { username: "Joe bloggs"}
-
   , function success(html) {
-
       document.getElementById("user-info").innerHTML = html;
-
     }
-
 );
 ```
 
@@ -276,18 +242,12 @@ response data type is JSON.
 ####Example
 ```js
 $xhr.getJSON(
-
     "test/server.php"
-
   , { username: "Joe bloggs"}
-
   , function success(data) {
-
       console.log("userid: " + data.userid);
       console.log("last login: " + data.lastLogin);
-
     }
-
 );
 ```
 
@@ -306,17 +266,11 @@ response data type is an XML Document/Fragment.
 ####Example
 ```js
 $xhr.getXML(
-
     "test/server.php"
-
   , { weather: "London" }
-
   , function success(xml) {
-
       console.log(xml.documentElement);
-
     }
-
 );
 ```
 
@@ -336,24 +290,17 @@ The `post` method is a short cut to the `ajax` method.
 ####Example
 ```js
 $xhr.post(
-
     "test/server.php"
-
   , {
         action: "register new user"
       , username: "Joe bloggs"
       , email: "joe@bloggs.com"
       , telephone: "0208 123 4567"
     }
-
   , function success(json) {
-
       console.log("userid: " + json.newUserID);
-
     }
-
   , "json"
-
 );
 ```
 
@@ -391,23 +338,14 @@ cut methods outlined above.
 ####Example
 ```js
 $xhr.ajax({
-
     url: "http://www.somecorsdomain.com"
-
   , data: { query: "some api call" }
-
   , type: "get"
-
   , timeout: 5000
-
   , success: function (data) {
-
       console.log(data);
-
     }
-
   , dataType: "json"
-
 });
 ```
 
