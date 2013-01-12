@@ -215,7 +215,7 @@ SOFTWARE.
 
     */
     exp.sendFile = function () {
-      var opts = createOptions(arguments)
+      var opts = createOptions(arguments);
 
       return exp.ajax(mix(
           opts
