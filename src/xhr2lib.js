@@ -28,9 +28,7 @@ SOFTWARE.
   /**
 
     @author <a href="http://www.profilepicture.co.uk">Phil Parsons</a>
-
     @namespace $xhr
-
     @class
 
   */
@@ -45,23 +43,19 @@ SOFTWARE.
       @method supported
       @description Tests if XMLHttpRequest level 2 is supported by the user's
         browser
-
       @returns {boolean}
 
     */
     exp.supported = function () {
-
       var xhr = new XMLHttpRequest;
 
       return (
-
         typeof xhr.upload !== "undefined" && (
           // Web worker
           typeof ns.postMessage !== "undefined" ||
           // window
           (typeof ns.FormData !== "undefined" && typeof ns.File !== "undefined")
         )
-
       );
 
     };
@@ -73,20 +67,16 @@ SOFTWARE.
 
       @method defaultError
       @description global error handler for all ajax errors
-
       @param {Function} fn The error handler function
-
       @returns {$xhr} The receiver for chainability
 
     */
     exp.defaultError = function (fn) {
-
       if (typeof fn === "function") {
         globals.err = fn;
       }
 
       return this;
-
     };
 
 
@@ -94,20 +84,16 @@ SOFTWARE.
 
       @method defaultSuccess
       @description global success handler for all ajax requests
-
       @param {Function} fn The success handler function
-
       @returns {$xhr} The receiver for chainability
 
     */
     exp.defaultSuccess = function (fn) {
-
       if (typeof fn === "function") {
         globals.success = fn;
       }
 
       return this;
-
     };
 
 
@@ -118,19 +104,15 @@ SOFTWARE.
       @method get
       @description Convenience function for simple HTML get
         requests
-
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.get = function () {
-
       return exp.ajax(createOptions(arguments));
-
     };
 
 
@@ -139,19 +121,15 @@ SOFTWARE.
       @method getJSON
       @description Convenience function for simple JSON get
         requests
-
       @public
       @param {String} url destination URL
       @param {Object} [data] request params
       @param {Function} [cb] success callback function
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.getJSON = function () {
-
       return exp.ajax(mix(createOptions(arguments), {dataType: "json"}));
-
     };
 
 
@@ -160,19 +138,15 @@ SOFTWARE.
       @method getXML
       @description Convenience function for simple XML get
         requests
-
       @public
       @param {String} url destination URL
       @param {Object} [data] request parameters
       @param {Function} [cb] success call back function
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.getXML = function () {
-
       return exp.ajax(mix(createOptions(arguments), {dataType: "xml"}));
-
     };
 
 
@@ -180,20 +154,16 @@ SOFTWARE.
 
       @method post;
       @description Convenience method for simple posts
-
       @public
       @param {String} url destination URL
       @param {Object} [data] Post data
       @param {Function} [cb] success call back function
       @param {String} [dataType] type of response data
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.post = function () {
-
       return exp.ajax(mix(createOptions(arguments), {type: "post"}));
-
     };
 
 
@@ -203,38 +173,30 @@ SOFTWARE.
       @description Posts a form. The action attribute of the form is used to
         determine the destination. If no action attribute is present the
         current location is used.
-
       @public
       @param {HTMLFormElement} form A HTML Form element
       @param {Function} [cb] success call back function
       @param {String} [dataType] type of response data
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.sendForm = function () {
-
       var fd
         , options
         , f = arguments[0]
         , args = Array.prototype.slice.call(arguments, 1);
 
       if (f && f.nodeName === "FORM") {
-
         fd = new FormData(f);
         args.unshift(f.action || ns.location.href);
-
         options = mix(
             createOptions(args)
           , { type: f.method || "post", data: fd }
         );
 
         return exp.ajax(options);
-
       }
-
       else throw new Error("HTMLFormElement expected");
-
     };
 
 
@@ -243,26 +205,22 @@ SOFTWARE.
       @method sendFile
       @description Posts a file. The file's name can be retrieved on the server
         side from the X-File-Name HTTP Header.
-
       @public
       @param {String} url The URL to which the file should be sent
       @param {File} file A File or Blob object
       @param {Function} [cb] Success call back function
       @param {String} [dataType] type of response data
       @param {Function} [progress] Upload progress event handler
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.sendFile = function () {
-
       var opts = createOptions(arguments)
 
       return exp.ajax(mix(
           opts
         , { type: "post", headers: {"X-File-Name": opts.data.name} }
       ));
-
     };
 
 
@@ -270,15 +228,12 @@ SOFTWARE.
 
       @method ajax
       @description Core Ajax method used in all ajax methods;
-
       @public
       @param {Object} opts The options for the ajax request
-
       @returns {XMLHttpRequest} The client xhr object
 
     */
     exp.ajax = function (opts) {
-
       var client = new XMLHttpRequest
         , upload = client.upload
         , settings = mix({ // default request parameters
@@ -303,53 +258,34 @@ SOFTWARE.
           ) {
 
         if (settings.type === "get") {
-
           settings.url = exp.serialize(settings.data, settings.url);
           settings.data = null;
-
         }
-
         else {
-
           tmp = new FormData;
 
           for (key in settings.data) {
-
             if (settings.data.hasOwnProperty(key)) {
-
-              tmp.append(
-                  key
-                , exp.isTypeOf(settings.data[key], "array") ?
-                    settings.data[key].join() :
-                    settings.data[key]
+              tmp.append(key, exp.isTypeOf(settings.data[key], "array") ?
+                settings.data[key].join() : settings.data[key]
               );
-
             }
-
           }
 
           settings.data = tmp;
-
         }
-
       }
 
       if (typeof settings.progress === "function") {
-
         upload.callback = settings.progress;
         upload.onprogress = progress;
-
       }
 
       if (settings.timeout > 0) {
-
         settings.timer = setTimeout(function () {
-
           client = requestTimeout(client);
           client = null;
-
         }, settings.timeout);
-
       }
 
       client.open(
@@ -365,20 +301,15 @@ SOFTWARE.
 
       // cache settings for pickup in state change handler
       client.xhr2data = settings;
-
       client.onreadystatechange = stateChange;
       client.onerror = requestError;
-
       client.send(settings.data);
 
       return client;
-
     };
 
 
-
     // :Utils api
-
 
     /**
 
@@ -386,49 +317,37 @@ SOFTWARE.
       @description Serialises a data object to a query string. If the appendTo
         string is supplied then the serialized object will be appended to that
         string.
-
       @public
       @param {Object} data the request data
       @param {String} [appendTo] an existing query string/url
-
       @returns {String} data object serialised and appropriately appended to
         appendTo, if supplied.
 
     */
     exp.serialize = function (data, appendTo) {
-
       var qs = "";
 
       if (appendTo && typeof appendTo === "string") {
-
         if (appendTo.indexOf("?") === -1) {
           qs = "?";
         }
-
         else {
           qs = "&";
         }
-
       }
-
       else {
         appendTo = "";
       }
 
       if (typeof data === "object") {
-
         for (var key in data) {
-
           if (data.hasOwnProperty(key)) {
             qs += key + "=" + data[key] + "&";
           }
-
         }
-
       }
 
       return appendTo + qs.substr(0, qs.length - 1); // scrub the last &;
-
     };
 
 
@@ -436,20 +355,16 @@ SOFTWARE.
 
       @method isTypeOf
       @description Safe type checking for object types such as Array
-
       @param {object} obj The object to test
       @param {string} type The type to test against
 
     */
     exp.isTypeOf = function (obj, type) {
-
       var cts = obj.constructor.toString().toLowerCase();
       type = type.replace(/^\s*|\s*$/, "").toLowerCase();
 
       return cts.indexOf(type) !== -1;
-
     };
-
 
 
     // :private
@@ -460,46 +375,33 @@ SOFTWARE.
       @private
     */
     var createOptions = function (args) {
-
       var i = 0
         , opts = { url: args[0] }
         , params = Array.prototype.slice.call(args, 1)
         , foundCB = false;
 
       for (; i < params.length; ++i) {
-
         switch (typeof params[i]) {
-
           case "string":
             opts.dataType = params[i];
             break;
 
-
           case "function": // success/progress callback functions
-
             if (foundCB) { // already registered success callback add progress
               opts.progress = params[i];
             }
-
             else {
-
               opts.success = params[i];
               foundCB = true;
-
             }
-
             break;
-
 
           case "object": // data object
             opts.data = params[i];
-
         }
-
       }
 
       return opts;
-
     };
 
 
@@ -509,29 +411,21 @@ SOFTWARE.
       @private
     */
     var mix = function () {
-
       var ret = {}
         , i = 0
         , key;
 
       if (arguments.length && typeof arguments[0] !== "undefined") {
-
         for (; i < arguments.length; ++i) { // each option set
-
           for (key in arguments[i]) {
-
             if (arguments[i].hasOwnProperty(key)) {
               ret[key] = arguments[i][key];
             }
-
           }
-
         }
-
       }
 
       return ret;
-
     };
 
 
@@ -543,47 +437,37 @@ SOFTWARE.
       @private
     */
     var stateChange = function (ev) {
-
       var resBody
         , xhr = ev.target
         , clientData = xhr.xhr2data || {}
         , sh;
 
       if (xhr.readyState === xhr.DONE) {
-
         if (clientData.timer) {
           clearTimeout(clientData.timer);
         }
 
         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+          sh = successHandler(clientData);
 
-            sh = successHandler(clientData);
-
-            if (typeof sh === "function") {
-
-              if (clientData.dataType === "json") {
-                resBody = JSON.parse(xhr.responseText);
-              }
-
-              else if (clientData.dataType === "xml") {
-                resBody = xhr.responseXML;
-              }
-
-              else {
-                resBody = xhr.responseText;
-              }
-
-              sh.call(xhr, resBody);
-              return;
-
+          if (typeof sh === "function") {
+            if (clientData.dataType === "json") {
+              resBody = JSON.parse(xhr.responseText);
+            }
+            else if (clientData.dataType === "xml") {
+              resBody = xhr.responseXML;
+            }
+            else {
+              resBody = xhr.responseText;
             }
 
+            sh.call(xhr, resBody);
+            return;
+          }
         }
 
         requestError(ev);
-
       }
-
     };
 
 
@@ -594,11 +478,9 @@ SOFTWARE.
       @private
     */
     var progress = function (ev) {
-
       if (ev && ev.lengthComputable) {
         ev.target.callback.call(ev, Math.round(ev.loaded / ev.total) * 100);
       }
-
     };
 
 
@@ -608,11 +490,9 @@ SOFTWARE.
       @private
     */
     var addHeaders = function (client, resType, headers) {
-
       var accept, header;
 
       switch ((resType || "").toLowerCase()) {
-
         case "json":
           accept = "application/json, text/javascript, ";
           break;
@@ -627,24 +507,18 @@ SOFTWARE.
 
         default:
           accept = "text/html, ";
-
       }
 
       accept += "*/*;q=0.01";
       client.setRequestHeader("Accept", accept);
 
       if (typeof headers === "object") { // user defined headers
-
         for (header in headers) {
-
           if (headers.hasOwnProperty(header)) {
             client.setRequestHeader(header, headers[header]);
           }
-
         }
-
       }
-
     };
 
 
@@ -654,19 +528,15 @@ SOFTWARE.
       @private
     */
     var requestError = function (ev) {
-
       var xhr = ev.target, fn;
 
       if (xhr) {
-
         fn = errorHandler(xhr);
 
         if (fn) {
           fn.call(xhr, xhr.statusText, xhr.status);
         }
-
       }
-
     };
 
 
@@ -676,7 +546,6 @@ SOFTWARE.
       @private
     */
     var requestTimeout = function (xhr) {
-
       var fn = errorHandler(xhr);
 
       xhr.abort();
@@ -684,7 +553,6 @@ SOFTWARE.
       if (fn) {
         fn.call(xhr, "timeout", xhr.status);
       }
-
     };
 
 
@@ -694,7 +562,6 @@ SOFTWARE.
       @private
     */
     var errorHandler = function (xhr) {
-
       if (xhr.xhr2data && typeof xhr.xhr2data.error === "function") {
         return xhr.xhr2data.error;
       }
@@ -704,7 +571,6 @@ SOFTWARE.
       }
 
       return undefined;
-
     };
 
 
@@ -714,7 +580,6 @@ SOFTWARE.
       @private
     */
     var successHandler = function (xhr2data) {
-
       if (xhr2data && xhr2data.success) {
         return xhr2data.success;
       }
@@ -724,12 +589,10 @@ SOFTWARE.
       }
 
       return undefined;
-
     };
 
 
     return exp; // export api
-
 
   })();
 
