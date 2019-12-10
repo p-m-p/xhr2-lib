@@ -28,11 +28,11 @@ TODOs
 Documentation
 ---
 
-###.supported()
+### .supported()
 
 Returns true if the client browser supports xhr2lib, false otherwise.
 
-####Example
+#### Example
 ```js
 <script>
 
@@ -46,14 +46,14 @@ Returns true if the client browser supports xhr2lib, false otherwise.
 </script>
 ```
 
-###.defaultError(fn)
+### .defaultError(fn)
 
 + **fn** - A Function
 
 The `defaultError` method sets up a default error handler for all requests that
 do not have an explicit error handler defined.
 
-####Example
+#### Example
 ```js
 <script>
 
@@ -69,14 +69,14 @@ do not have an explicit error handler defined.
 </script>
 ```
 
-###.defaultSuccess(fn)
+### .defaultSuccess(fn)
 
 + **fn** - A Function
 
 The `defaultSuccess` method sets up a default success handler for all requests
 that do not have an explicit success handler defined.
 
-####Example
+#### Example
 ```js
 <nav>
   <a href="home.html">Home</a>
@@ -112,7 +112,7 @@ that do not have an explicit success handler defined.
 </script>
 ```
 
-###.sendForm(form [, success, dataType] [, progress])
+### .sendForm(form [, success, dataType] [, progress])
 
 + **form** - A HTMLFormElement.
 + **success** - Callback function to run on successful completion of the
@@ -129,7 +129,7 @@ attributes are not defined.
 
 The `sendForm` method will also send file fields (see: [FormData Interface][3]).
 
-####Example
+#### Example
 ```js
 <form action="test/server.php" method="post" id="example-form">
   ...
@@ -155,7 +155,7 @@ The `sendForm` method will also send file fields (see: [FormData Interface][3]).
 
 ---
 
-###.sendFile(url, file [, success, dataType] [, progress])
+### .sendFile(url, file [, success, dataType] [, progress])
 
 + **url** - The URL to which the file is to be sent.
 + **file** - File or Blob object to send.
@@ -169,7 +169,7 @@ The `sendForm` method will also send file fields (see: [FormData Interface][3]).
 The `sendFile` method takes a `File` or `Blob` object (see: [File API][2]) and
 sends it to the specified URL.
 
-####Example
+#### Example
 ```js
 <form action="" method="post">
   <input type="file" id="file-field" name="upload" multiple>
@@ -206,7 +206,7 @@ sends it to the specified URL.
 
 ---
 
-###.get(url [, data] [,success, dataType])
+### .get(url [, data] [,success, dataType])
 
 + **url** - The URL from which to get data.
 + **data** - Request data object to be sent to the server.
@@ -216,7 +216,7 @@ sends it to the specified URL.
 
 The `get` method is a short cut to the `ajax` method.
 
-####Example
+#### Example
 ```js
 $xhr.get(
     "test/server.php"
@@ -229,7 +229,7 @@ $xhr.get(
 
 ---
 
-###.getJSON(url [, data] [,success])
+### .getJSON(url [, data] [,success])
 
 + **url** - The URL from which to get data.
 + **data** - Request data object to be sent to the server.
@@ -239,7 +239,7 @@ $xhr.get(
 The `getJSON` method is a short cut to the `ajax` method where the desired
 response data type is JSON.
 
-####Example
+#### Example
 ```js
 $xhr.getJSON(
     "test/server.php"
@@ -253,7 +253,7 @@ $xhr.getJSON(
 
 ---
 
-###.getXML(url [, data] [,success])
+### .getXML(url [, data] [,success])
 
 + **url** - The URL from which to get data.
 + **data** - Request data object to be sent to the server.
@@ -263,7 +263,7 @@ $xhr.getJSON(
 The `getXML` method is a short cut to the `ajax` method where the desired
 response data type is an XML Document/Fragment.
 
-####Example
+#### Example
 ```js
 $xhr.getXML(
     "test/server.php"
@@ -276,7 +276,7 @@ $xhr.getXML(
 
 ---
 
-###.post(url [, data] [,success, dataType])
+### .post(url [, data] [,success, dataType])
 
 + **url** - The URL from which to get data.
 + **data** - Request data object (Plain, FormData, File or Blob) to be sent to
@@ -287,7 +287,7 @@ $xhr.getXML(
 
 The `post` method is a short cut to the `ajax` method.
 
-####Example
+#### Example
 ```js
 $xhr.post(
     "test/server.php"
@@ -306,7 +306,7 @@ $xhr.post(
 
 ---
 
-###.ajax(settings)
+### .ajax(settings)
 
 **settings** - The request settings consisting of:
 
@@ -335,7 +335,7 @@ $xhr.post(
 The `ajax` method is the core of the library and is utilised by all of the short
 cut methods outlined above.
 
-####Example
+#### Example
 ```js
 $xhr.ajax({
     url: "http://www.somecorsdomain.com"
